@@ -1,0 +1,1565 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>a notebook for you</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>window.LeafletLib=window.L</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Itim&family=ZCOOL+KuaiLe&family=Nunito:wght@400;700;800&family=Quicksand:wght@500;700&display=swap">
+<style>
+/* Layout: one scrapbook notebook on cream porcelain paper; cobalt band + blue-and-white flower sprays framing the page;
+   each page = torn paper held by washi tape; songs = a vinyl player with a rounded playlist.
+   Palette: cream porcelain, cobalt glaze, dusty vinyl blue, grey cards, one soft pink for love. */
+:root{
+  --sky:#f5f2e8;          /* page background: porcelain cream */
+  --grid:#ebe5d4;         /* faint paper dots */
+  --paper:#fffdf8;        /* torn paper */
+  --paper-2:#eef1f4;      /* grey cards (vinyl UI) */
+  --ink:#2b3f63;          /* navy ink */
+  --ink-soft:#7f98b2;
+  --cobalt:#2f5597;       /* porcelain glaze */
+  --cobalt-2:#5b82c0;
+  --dusty:#8fb0c4;        /* vinyl-UI blue */
+  --pink:#f3c6d2;
+  --pink-ink:#b85479;
+  --butter:#f4e6b5;
+  --tape:#a9c4e6;
+  --line:#dde5ee;
+  --shadow:rgba(43,63,99,.13);
+  --f-hand:"Itim","ZCOOL KuaiLe","Comic Sans MS",cursive;
+  --f-zh:"ZCOOL KuaiLe","Itim","PingFang SC","Microsoft YaHei",cursive;
+  --f-round:"Quicksand","Nunito",system-ui,sans-serif;
+  --f-body:"Nunito","Itim",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --sky:#121c30;--grid:#1c2943;--paper:#1d2a44;--paper-2:#24334f;--ink:#eef2f8;--ink-soft:#a3b8d0;--cobalt:#8fb2ec;--cobalt-2:#6d93d3;--dusty:#89aac0;
+  --pink:#d68da3;--pink-ink:#ffb3c9;--butter:#c2b072;--tape:#4f72a6;--line:#2f4166;--shadow:rgba(0,0,0,.35);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --sky:#121c30;--grid:#1c2943;--paper:#1d2a44;--paper-2:#24334f;--ink:#eef2f8;--ink-soft:#a3b8d0;--cobalt:#8fb2ec;--cobalt-2:#6d93d3;--dusty:#89aac0;
+  --pink:#d68da3;--pink-ink:#ffb3c9;--butter:#c2b072;--tape:#4f72a6;--line:#2f4166;--shadow:rgba(0,0,0,.35);color-scheme:dark}
+
+*{box-sizing:border-box}
+body{
+  background-color:var(--sky);
+  background-image:radial-gradient(var(--grid) 1.4px,transparent 1.6px);
+  background-size:22px 22px;
+  color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:24px 64px;overflow-x:hidden;
+}
+html[lang="zh"] body{font-family:var(--f-zh)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:400;text-wrap:balance;margin:0;line-height:1.2}
+html[lang="zh"] h1,html[lang="zh"] h2,html[lang="zh"] h3{font-family:var(--f-zh)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px dashed var(--pink-ink);outline-offset:3px}
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;display:grid;gap:44px}
+
+/* ---- porcelain decor (fixed, behind content) ---- */
+.decor{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.band{position:absolute;top:0;bottom:0;right:7%;width:min(17vw,170px);
+  background:radial-gradient(ellipse at 30% 20%,color-mix(in srgb,var(--cobalt-2) 70%,transparent),transparent 60%),
+             radial-gradient(ellipse at 70% 75%,color-mix(in srgb,var(--cobalt) 40%,black),transparent 65%),var(--cobalt);opacity:.9}
+.spray{position:absolute;color:var(--cobalt)}
+.spray.tl{top:-20px;left:-30px;width:min(48vw,380px)}
+.spray.br{bottom:-30px;right:2%;width:min(42vw,320px);transform:rotate(180deg)}
+.spray.mr{top:38%;right:calc(7% - 40px);width:min(26vw,200px);transform:rotate(100deg);opacity:.8}
+@media (max-width:640px){.band{right:0;width:10px;opacity:.7}.spray.mr{display:none}.spray.tl{width:62vw}.spray.br{width:56vw}}
+h2{color:var(--cobalt)}
+
+/* ---- browser-window frame (ref 2) ---- */
+.window{background:var(--paper-2);border:2px solid var(--line);border-radius:18px;box-shadow:0 10px 30px var(--shadow);overflow:hidden}
+.chrome{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+.dots{display:flex;gap:6px}.dots i{width:11px;height:11px;border-radius:50%;background:var(--ink-soft);opacity:.45}
+.addr{flex:1 1 180px;min-width:0;background:var(--paper);border-radius:999px;padding:4px 14px;font-size:13px;color:var(--ink-soft);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.langs{display:flex;gap:4px;background:var(--paper);border-radius:999px;padding:3px}
+.langs button{border:0;background:transparent;border-radius:999px;padding:3px 12px;font-family:var(--f-hand);font-size:15px;color:var(--ink-soft)}
+.langs button[aria-pressed="true"]{background:var(--pink);color:#4a2333}
+.sound{border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:3px 12px;font-family:var(--f-hand);font-size:14px}
+.sound[aria-pressed="true"]{background:var(--butter);border-color:var(--butter);color:#4d4220}
+
+/* ---- hero ---- */
+.hero{position:relative;padding:34px 22px 30px;display:grid;justify-items:center;text-align:center;gap:14px}
+.script{font-family:"Itim",cursive;color:var(--ink-soft);font-size:15px;letter-spacing:.2em;text-transform:uppercase}
+.hero h1{font-size:clamp(34px,7vw,58px);color:var(--ink)}
+.hero h1 em{font-style:normal;color:var(--pink-ink)}
+.hero p{max-width:46ch;margin:0;color:var(--ink-soft)}
+.love-btn{position:relative;margin-top:8px;border:0;padding:16px 30px;border-radius:999px;background:var(--pink);color:#4a2333;
+  font-family:var(--f-hand);font-size:22px;box-shadow:0 5px 0 var(--pink-ink);transition:transform .12s}
+.love-btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--pink-ink)}
+.love-out{min-height:2.4em;font-family:var(--f-hand);font-size:clamp(24px,5vw,34px);color:var(--pink-ink)}
+.love-out small{display:block;font-size:14px;color:var(--ink-soft)}
+.burst{position:fixed;pointer-events:none;font-size:22px;z-index:50;animation:float 1.4s ease-out forwards}
+@keyframes float{to{transform:translate(var(--dx),-140px) rotate(var(--r));opacity:0}}
+
+/* ---- tabs ---- */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.tabs a{font-family:var(--f-hand);text-decoration:none;color:var(--ink);background:var(--paper);border:2px solid var(--line);
+  padding:4px 14px;border-radius:10px 10px 4px 4px;font-size:15px;transform:rotate(var(--t,0deg))}
+.tabs a:nth-child(odd){--t:-1.5deg}.tabs a:nth-child(3n){--t:1.5deg;background:var(--butter);border-color:var(--butter);color:#4d4220}
+.tabs a:hover{background:var(--pink);border-color:var(--pink);color:#4a2333}
+
+/* ---- notebook page (torn paper + tape) ---- */
+.page{position:relative;background:var(--paper);padding:38px clamp(18px,4vw,40px) 34px;border-radius:4px;box-shadow:0 8px 22px var(--shadow);
+  transform:rotate(var(--tilt,0deg));scroll-margin-top:20px;
+  -webkit-mask:radial-gradient(7px at 50% 100%,#0000 97%,#000) 50% calc(100% + 0px)/18px 100% repeat-x;}
+.page:nth-of-type(even){--tilt:.5deg}.page:nth-of-type(odd){--tilt:-.4deg}
+.tape{position:absolute;top:-12px;left:50%;width:120px;height:30px;transform:translateX(-50%) rotate(-3deg);
+  background:radial-gradient(circle at 50% 50%,var(--cobalt) 2px,transparent 3px) 0 0/12px 12px,repeating-linear-gradient(45deg,var(--tape) 0 6px,color-mix(in srgb,var(--tape) 70%,white) 6px 12px);opacity:.85;border-radius:2px}
+.page h2{font-family:var(--f-round);font-weight:700;letter-spacing:-.01em}
+html[lang="zh"] .page h2{font-family:var(--f-zh)}
+.tape.pink{background:repeating-linear-gradient(90deg,var(--pink) 0 8px,color-mix(in srgb,var(--pink) 60%,white) 8px 16px);left:22%}
+.tape.butter{background:var(--butter);left:auto;right:6%;transform:rotate(6deg)}
+.page h2{font-size:clamp(26px,4.6vw,36px);margin-bottom:4px}
+.page .sub{color:var(--ink-soft);margin:0 0 22px;max-width:60ch}
+.sticker{position:absolute;font-size:30px;right:22px;top:18px;transform:rotate(12deg);filter:drop-shadow(0 2px 2px var(--shadow))}
+
+.btn{border:2px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:12px;padding:8px 18px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:var(--f-hand);font-size:16px;box-shadow:3px 3px 0 var(--ink);cursor:pointer;white-space:nowrap}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.pink{background:var(--pink);color:#4a2333}
+.btn.butter{background:var(--butter);color:#4d4220}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+
+/* ---- study corner ---- */
+.study{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:18px}
+.card{background:var(--paper-2);border:2px dashed var(--line);border-radius:14px;padding:18px;display:grid;gap:12px;align-content:start;min-width:0}
+.card h3{font-size:20px}
+.note-out{font-family:var(--f-hand);font-size:18px;min-height:3.2em;color:var(--pink-ink)}
+.timer{font-family:var(--f-hand);font-size:44px;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.bunny{font-size:54px;border:0;background:transparent;line-height:1;transition:transform .15s;justify-self:start}
+.bunny.squish{transform:scale(1.15,.85)}
+
+/* ---- diary ---- */
+.diary-form{display:grid;gap:10px;margin-bottom:22px}
+.diary-form textarea{min-height:90px;resize:vertical;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper-2);
+  background-image:linear-gradient(transparent 27px,var(--line) 28px);background-size:100% 28px;line-height:28px}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:16px}
+.postit{padding:14px 14px 12px;border-radius:3px;box-shadow:2px 4px 10px var(--shadow);min-width:0;transform:rotate(var(--r,0deg));color:#3f3a2a;background:#fdf1b8}
+.postit.them{background:#fbd7e2;color:#4a2333}
+.postit p{margin:0 0 8px;white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--f-hand);font-size:17px}
+.postit .meta{font-size:12px;opacity:.75;display:flex;justify-content:space-between;gap:8px}
+.postit button{border:0;background:transparent;font-size:12px;opacity:.6;padding:0}
+.example-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.6}
+
+/* ---- game card ---- */
+.game{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.polaroid{background:#fff;padding:10px 10px 30px;box-shadow:0 6px 16px var(--shadow);transform:rotate(-4deg);width:130px;text-align:center;color:#33506e;font-family:var(--f-hand)}
+.polaroid div{height:110px;background:linear-gradient(160deg,#2b3242,#556178);display:grid;place-items:center;font-size:48px}
+.idbox{font-family:var(--f-hand);font-size:26px;letter-spacing:.08em;background:var(--paper-2);border:2px dashed var(--ink-soft);border-radius:10px;padding:4px 14px;user-select:all;display:inline-block}
+.chicken{color:var(--ink-soft);font-size:14px}
+.acct{display:grid;gap:2px;justify-items:start}
+.acct .lbl{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-top:6px}
+.acct-name{font-family:var(--f-zh);font-size:30px;color:var(--cobalt);line-height:1.2;overflow-wrap:anywhere}
+@media (max-width:520px){.game{grid-template-columns:1fr}.polaroid{justify-self:center}}
+
+/* ---- fixes ---- */
+.fixes{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.fixes li{display:grid;grid-template-columns:28px 1fr;gap:4px 10px;align-items:start;padding-bottom:14px;border-bottom:2px dotted var(--line)}
+.fixes .box{width:22px;height:22px;border:2px solid var(--ink);border-radius:5px;margin-top:4px;display:grid;place-items:center;font-size:14px;color:var(--pink-ink)}
+.fixes .was{text-decoration:line-through;text-decoration-color:var(--pink-ink);text-decoration-thickness:2px;color:var(--ink-soft)}
+.fixes .now{grid-column:2;font-family:var(--f-hand);font-size:18px}
+
+/* ---- letter ---- */
+.envelope{display:grid;justify-items:center;gap:16px}
+.env-btn{width:min(320px,100%);aspect-ratio:16/10;max-width:100%;border:0;border-radius:10px;background:var(--pink);position:relative;overflow:hidden;box-shadow:0 8px 20px var(--shadow)}
+.env-btn::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom right,transparent 49.5%,color-mix(in srgb,var(--pink) 75%,black) 50%,transparent 51%),linear-gradient(to bottom left,transparent 49.5%,color-mix(in srgb,var(--pink) 75%,black) 50%,transparent 51%);opacity:.35}
+.env-btn span{position:relative;font-family:var(--f-hand);font-size:20px;color:#4a2333;background:var(--paper);padding:4px 14px;border-radius:999px}
+.letter{max-width:60ch;background:var(--paper-2);border-radius:8px;padding:22px 24px;font-family:var(--f-hand);font-size:18px;line-height:1.8;
+  background-image:linear-gradient(transparent 31px,var(--line) 32px);background-size:100% 32px;white-space:pre-line;animation:unfold .6s ease-out}
+@keyframes unfold{from{transform:scaleY(.2);opacity:.2}}
+
+/* ---- reasons ---- */
+.reasons{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:18px}
+.reason{background:var(--paper-2);border-radius:12px;padding:16px 16px 14px;border:2px solid var(--line);transition:transform .5s cubic-bezier(.3,1.6,.5,1),border-color .5s;min-width:0}
+.reason.lit{transform:rotate(var(--r,-1deg)) scale(1.02);border-color:var(--pink)}
+.reason .n{font-family:var(--f-hand);color:var(--pink-ink);font-size:14px}
+.reason p{margin:4px 0 0;font-family:var(--f-hand);font-size:18px}
+.note-fly{position:absolute;font-size:20px;pointer-events:none;animation:float 1.2s ease-out forwards;--dx:14px;--r:20deg}
+
+/* ---- songs: vinyl player + rounded playlist ---- */
+.player{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:32px;align-items:start;margin-bottom:30px}
+.deckcol{min-width:0;display:grid;gap:18px}
+.deck{display:grid;grid-template-columns:auto minmax(0,1fr);gap:26px;align-items:center;min-width:0}
+.turntable{position:relative;width:clamp(130px,17vw,180px);aspect-ratio:1;flex:none;margin:10px 14px 0 0}
+.vinyl{position:relative;width:100%;height:100%;border-radius:50%;
+  background:radial-gradient(circle,var(--paper) 0 13%,var(--dusty) 13% 30%,#111 30.5%),
+             repeating-radial-gradient(circle,#1b1b1b 0 2px,#262626 2px 3px);box-shadow:0 10px 24px var(--shadow)}
+.vinyl::after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 30deg,transparent 0 12%,rgba(255,255,255,.18) 15%,transparent 20% 60%,rgba(255,255,255,.12) 64%,transparent 70%)}
+.vinyl.spin{animation:spin 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.arm{position:absolute;left:92%;top:-6%;width:8px;height:58%;border-radius:6px;background:var(--dusty);transform-origin:50% 6px;transform:rotate(12deg);transition:transform .6s;box-shadow:0 3px 6px var(--shadow)}
+.arm.on{transform:rotate(30deg)}
+.arm::before{content:"";position:absolute;top:-6px;left:-5px;width:20px;height:20px;border-radius:50%;background:var(--paper-2);border:4px solid var(--dusty)}
+.now{min-width:0}
+.now h3{font-family:var(--f-round);font-weight:700;font-size:clamp(24px,3.2vw,34px);color:var(--dusty);overflow-wrap:break-word;word-break:keep-all;line-height:1.15}
+.now h3 .ctl{font-size:14px}
+html[lang="zh"] .now h3{font-family:var(--f-zh)}
+.now .artist{font-style:italic;color:var(--ink-soft)}
+.now .why{font-family:var(--f-round);color:var(--ink-soft);margin:10px 0 12px;white-space:pre-line;max-width:46ch}
+.now .ctrl{display:flex;gap:10px;align-items:center}
+.pbtn{width:46px;height:46px;border-radius:12px;border:0;background:var(--dusty);color:#fff;font-size:18px;display:grid;place-items:center;box-shadow:0 4px 10px var(--shadow)}
+.now a{color:var(--dusty);font-family:var(--f-round);font-weight:700}
+.plist h3{font-family:var(--f-round);font-weight:700;font-size:30px;color:var(--dusty);margin-bottom:10px}
+.plist ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.plist button{width:100%;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center;text-align:left;border:3px solid transparent;
+  background:var(--paper-2);border-radius:16px;padding:8px 12px;font-family:var(--f-round)}
+.plist button[aria-current="true"]{border-color:var(--dusty);background:var(--paper)}
+.plist .thumb{width:44px;height:44px;border-radius:10px;background:radial-gradient(circle,var(--paper) 0 10%,var(--dusty) 10% 26%,#1b1b1b 27%);}
+.plist b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plist small{color:var(--dusty)}
+@media (max-width:780px){.player{grid-template-columns:1fr}}
+@media (max-width:520px){.deck{grid-template-columns:1fr;justify-items:center;text-align:center}.now .ctrl{justify-content:center}.now .why{margin-inline:auto}.turntable{width:150px;margin:10px 0 0}}
+
+/* ---- songs as tickets (ref 3) ---- */
+.tickets{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr));gap:20px}
+.ticket{position:relative;background:linear-gradient(160deg,#dbe9f7,#f7fbff);color:#2c4865;border-radius:10px;padding:16px 18px 14px;box-shadow:0 6px 16px var(--shadow);min-width:0;
+  -webkit-mask:radial-gradient(10px at 0 62%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(10px at 100% 62%,#0000 98%,#000) right/51% 100% no-repeat}
+.ticket .lbl{font-size:10px;letter-spacing:.18em;text-transform:uppercase;opacity:.7}
+.ticket h3{font-size:22px;margin:2px 0}
+.ticket .artist{font-size:14px;opacity:.85}
+.ticket hr{border:0;border-top:2px dashed #9dbbd8;margin:12px 0 10px}
+.ticket .why{font-family:var(--f-hand);font-size:16px;margin:0 0 10px}
+.ticket .foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}
+.ticket a{color:#2c4865;font-weight:700}
+.barcode{height:22px;width:90px;background:repeating-linear-gradient(90deg,#2c4865 0 2px,transparent 2px 4px,#2c4865 4px 5px,transparent 5px 8px)}
+
+/* ---- ENFP x INTJ ---- */
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:420px;flex:1 1 260px}
+.mbti-row{display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.mini-pic{margin:0;background:#fff;padding:8px 8px 22px;box-shadow:0 6px 16px var(--shadow);transform:rotate(3deg);width:min(190px,60%);flex:0 0 auto}
+.mini-pic img{display:block;width:100%;height:auto;max-width:100%}
+.mcard{background:var(--paper-2);border-radius:18px;padding:18px;text-align:center;min-width:0}
+.mcard .type{font-family:var(--f-round);font-weight:700;font-size:clamp(24px,5vw,44px);letter-spacing:.04em;color:var(--dusty);line-height:1.1}
+.mcard.me .type{color:var(--pink-ink)}
+.facts{margin:10px 0 0;display:grid;gap:2px;text-align:center}
+.facts dt{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-top:6px}
+.facts dd{margin:0;font-family:var(--f-round);font-weight:700;font-size:14px;overflow-wrap:break-word;hyphens:manual}
+@media (max-width:420px){.mcard{padding:14px 10px}.facts dd{font-size:13px}}
+.duo{max-width:520px!important}
+.mcard .who{font-family:var(--f-hand);font-size:19px}
+.mcard .nick{font-size:12px;color:var(--ink-soft);letter-spacing:.1em;text-transform:uppercase}
+.mcard ul{list-style:none;padding:0;margin:12px 0 0;text-align:left;display:grid;gap:6px;font-family:var(--f-hand);font-size:16px}
+.mcard li::before{content:"✦ ";color:var(--cobalt-2)}
+.axes{display:grid;gap:10px;font-family:var(--f-round);font-weight:700;font-size:20px}
+.axis{display:grid;grid-template-columns:24px 64px 24px;align-items:center;gap:6px;text-align:center}
+.axis .l{color:var(--pink-ink)}.axis .r{color:var(--dusty)}
+.axis .bar{border-top:2px dashed var(--ink-soft);position:relative;opacity:.8}
+.axis .bar span{position:absolute;left:50%;top:0;transform:translate(-50%,-55%);font-size:13px;background:var(--paper);padding:0 4px;color:var(--ink-soft)}
+.axis.same .bar{border-top:2px solid var(--pink)}
+.axis.same .bar span{color:var(--pink-ink)}
+.fitlist{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:10px}
+.fitlist li{font-family:var(--f-hand);font-size:18px;padding-left:28px;position:relative}
+.fitlist li::before{content:"♡";position:absolute;left:0;color:var(--pink-ink)}
+
+
+/* ---- embedded player ---- */
+.embed{border-radius:14px;overflow:hidden;background:var(--paper-2);max-width:100%}
+.embed iframe{display:block;width:100%;border:0}
+.embed.yt iframe{aspect-ratio:16/9;height:auto}
+.embed.sp iframe{height:152px}
+.sync{font-size:12px;color:var(--ink-soft);text-align:center;font-family:var(--f-round)}
+
+/* ---- add-song form ---- */
+.addsong{margin-top:26px;background:var(--paper-2);border-radius:16px;padding:16px 18px;display:grid;gap:10px}
+.addsong h3{font-family:var(--f-round);font-weight:700;font-size:20px;color:var(--dusty)}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:10px}
+#songWhy{grid-column:1/-1;order:9;resize:vertical;min-height:140px;line-height:1.6}
+.ef textarea.tall{min-height:200px}
+.ef-photo{display:grid;gap:10px;justify-items:start}
+.ef-photo img{width:160px;max-width:100%;height:120px;object-fit:cover;border:5px solid #fff;box-shadow:0 3px 10px var(--shadow);transform:rotate(-2deg)}
+.ef-photo img[hidden]{display:none}
+.field{border:2px solid var(--line);border-radius:12px;padding:9px 14px;background:var(--paper);color:var(--ink);min-width:0;width:100%;min-height:44px;font-size:15px;transition:border-color .15s,box-shadow .15s}
+.field:focus,.diary-form textarea:focus{outline:none;border-color:var(--dusty);box-shadow:0 0 0 4px color-mix(in srgb,var(--dusty) 22%,transparent)}
+.field::placeholder,.diary-form textarea::placeholder{color:var(--ink-soft);opacity:.85}
+textarea.field{line-height:1.5}
+/* two-choice switch (replaces the Maia/Sihao dropdowns) */
+.seg-src{position:absolute!important;width:1px!important;height:1px!important;opacity:0;pointer-events:none}
+.seg{display:inline-flex;gap:2px;padding:3px;background:var(--paper-2);border:2px solid var(--line);border-radius:999px;flex:none}
+.seg button{border:0;background:transparent;border-radius:999px;padding:6px 16px;min-height:34px;font-family:var(--f-round);font-weight:700;font-size:14px;color:var(--ink-soft);cursor:pointer;transition:background .15s,color .15s}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-checked="true"]{background:var(--pink);color:#4a2333;box-shadow:0 2px 6px var(--shadow)}
+.row label,.listen-as label{font-family:var(--f-round);font-weight:700;font-size:14px;color:var(--ink-soft)}
+.ticket .del,.polaroid-card .del{border:0;background:transparent;font-size:12px;opacity:.6;padding:0;color:inherit;text-decoration:underline}
+
+/* ---- life updates (timeline) ---- */
+.timeline{list-style:none;margin:0;padding:0 0 0 22px;display:grid;gap:18px;border-left:3px dotted var(--cobalt-2)}
+.timeline li{position:relative;min-width:0}
+.timeline li::before{content:"";position:absolute;left:-32px;top:6px;width:16px;height:16px;border-radius:50%;background:var(--paper);border:3px solid var(--cobalt)}
+.timeline .when{font-family:var(--f-round);font-weight:700;color:var(--cobalt);font-size:14px;letter-spacing:.04em}
+.timeline .what{font-family:var(--f-hand);font-size:18px;margin:2px 0 0;overflow-wrap:anywhere}
+.timeline li.me::before{border-color:var(--pink-ink)}
+.timeline li.them::before{border-color:var(--dusty);background:var(--dusty)}
+.timeline .by{font-family:var(--f-hand);font-weight:400;color:var(--ink-soft);margin-left:6px}
+.timeline .del{border:0;background:transparent;font-size:12px;opacity:.6;padding:0;margin-left:8px;color:inherit;text-decoration:underline}
+.updform{display:grid;gap:10px;margin-bottom:24px}
+.updform .fields{grid-template-columns:minmax(0,3fr) minmax(0,1fr)}
+@media (max-width:520px){.updform .fields{grid-template-columns:1fr}}
+.timeline .tag{display:inline-block;font-size:12px;background:var(--butter);color:#4d4220;border-radius:999px;padding:1px 10px;margin-left:6px;vertical-align:middle}
+
+/* ---- polaroid wall ---- */
+.pwall{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(170px,100%),1fr));gap:26px 20px;margin-top:10px}
+.polaroid-card{position:relative;background:#fff;color:#33506e;padding:10px 10px 12px;box-shadow:0 6px 16px var(--shadow);transform:rotate(var(--r,0deg));transition:transform .25s;min-width:0}
+.polaroid-card:hover{transform:rotate(0) scale(1.03);z-index:2}
+.polaroid-card::before{content:"";position:absolute;top:-10px;left:50%;width:64px;height:20px;transform:translateX(-50%) rotate(-4deg);background:var(--tape);opacity:.8}
+.polaroid-card .ph{aspect-ratio:1;max-width:100%;width:100%;object-fit:cover;display:block;background:linear-gradient(150deg,#dfe8f2,#f3f6fa)}
+.polaroid-card .empty{aspect-ratio:1;display:grid;place-items:center;text-align:center;padding:12px;font-family:var(--f-hand);color:#7f98b2;background:repeating-linear-gradient(45deg,#eef3f8 0 10px,#f7f9fc 10px 20px)}
+.polaroid-card .cap{font-family:var(--f-hand);font-size:17px;margin-top:8px;overflow-wrap:anywhere;min-height:1.5em}
+.polaroid-card .pmeta{display:flex;justify-content:space-between;gap:8px;font-size:12px;opacity:.7}
+.addphoto{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.addphoto input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
+.addphoto .field{flex:1 1 200px;width:auto}
+
+/* ---- places map ---- */
+.mapframe{border-radius:18px;overflow:hidden;border:6px solid #fff;box-shadow:0 8px 22px var(--shadow);transform:rotate(-.4deg)}
+#map{height:clamp(260px,48vw,380px);width:100%;background:#dfe8f2}
+#map .leaflet-tile-pane{filter:saturate(.55) brightness(1.04) sepia(.1) hue-rotate(170deg) saturate(.9) hue-rotate(-170deg)}
+.maphint{font-size:13px;color:var(--ink-soft);margin:10px 0 0}
+.placeform{display:grid;gap:10px;margin:14px 0 22px}
+.placeform .fields{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,3fr)}
+@media (max-width:560px){.placeform .fields{grid-template-columns:1fr}}
+.sr-file{position:absolute;width:1px;height:1px;opacity:0}
+.pin{width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--pink-ink);border:3px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.3);display:grid;place-items:center}
+.pin span{transform:rotate(45deg);font-size:12px;line-height:1}
+.pin.home{background:var(--cobalt)}
+.pin.temp{background:var(--butter)}
+.leaflet-popup-content{font-family:var(--f-round);color:#2b3f63;margin:10px 12px;text-align:center}
+.leaflet-popup-content b{font-size:15px}
+.leaflet-popup-content img{display:block;width:140px;max-width:100%;height:100px;object-fit:cover;border:4px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2);margin:0 auto 6px}
+.place-card{cursor:pointer}
+.place-card .city{font-family:var(--f-round);font-weight:700;font-size:16px;margin-top:6px}
+
+/* ---- biu scene ---- */
+.biu-page{padding-block:30px 22px}
+.biu-stage{display:block;width:100%;border:0;padding:0;background:transparent;border-radius:14px;cursor:pointer;box-shadow:0 6px 18px var(--shadow)}
+.biu-img{position:relative;display:block;width:100%;max-width:100%;aspect-ratio:736/563;background:#fff;border-radius:14px;overflow:hidden}
+.biu-img img,.biu-fx{position:absolute;inset:0;width:100%;height:100%;display:block}
+.biu-boy{transform-origin:81.5% 93%;transform:rotate(-8deg)}
+.biu-hint{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);background:var(--pink-ink);color:#fff;font-family:var(--f-round);font-weight:700;
+  font-size:clamp(13px,2.2vw,16px);padding:8px 16px;border-radius:999px;box-shadow:0 6px 16px rgba(184,84,121,.35);white-space:nowrap;pointer-events:none;
+  animation:hintPulse 1.6s ease-in-out infinite;transition:opacity .25s}
+.biu-hint.off{opacity:0}
+@keyframes hintPulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.07)}}
+.biu-stage:hover .biu-hint{background:#a0436a}
+.biu-cap{text-align:center;margin:12px 0 0;font-family:var(--f-round);color:var(--ink-soft);display:grid;gap:2px}
+.biu-cap b{font-size:18px;color:var(--pink-ink)}
+
+/* ---- the question (yes / runaway no) ---- */
+.ask-page{text-align:center}
+.ask-box{position:relative;min-height:440px;display:grid;justify-items:center;align-content:start;gap:10px;padding-bottom:20px}
+.ask-cat{width:min(210px,56vw);height:auto;max-width:100%;border-radius:50%;border:6px solid #fff;box-shadow:0 10px 26px rgba(184,84,121,.25);animation:catBob 2.4s ease-in-out infinite}
+@keyframes catBob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-6px) rotate(2deg)}}
+.ask-q{font-family:var(--f-hand)!important;font-size:clamp(24px,4.6vw,36px);color:var(--pink-ink)!important;max-width:22ch;text-wrap:balance}
+html[lang="zh"] .ask-q{font-family:var(--f-zh)!important}
+.ask-sub{margin:0;color:var(--ink-soft);font-family:var(--f-round);max-width:40ch}
+.ask-btns{display:flex;gap:16px;justify-content:center;align-items:center;margin-top:10px;min-height:64px}
+.ask-yes,.ask-no{font-size:18px;padding:10px 26px;min-width:128px}
+.ask-yes{transform:scale(var(--grow,1));transition:transform .25s cubic-bezier(.3,1.6,.5,1);transform-origin:center}
+.ask-no{transform:scale(var(--shrink,1)) rotate(var(--tilt,0deg));transition:left .28s cubic-bezier(.3,1.5,.5,1),top .28s cubic-bezier(.3,1.5,.5,1),transform .2s}
+.ask-no.loose{position:absolute;z-index:3}
+.ask-done{font-family:var(--f-hand);font-size:clamp(22px,4vw,30px);color:var(--pink-ink);margin:6px 0 0}
+.ask-said{margin:0;font-family:var(--f-round);font-weight:700;font-size:14px;color:var(--ink-soft)}
+@media (prefers-reduced-motion:reduce){.ask-cat{animation:none}}
+
+.yes-card{text-align:center;justify-items:center;max-width:380px}
+.yes-card h3{font-family:var(--f-hand)!important;font-weight:400!important;font-size:30px;color:var(--pink-ink)!important}
+.yes-pic{width:min(240px,70vw);height:auto;max-width:100%;border-radius:22px;box-shadow:0 10px 24px rgba(184,84,121,.25)}
+.yes-when{margin:0;color:var(--ink-soft);font-family:var(--f-round);font-weight:700}
+
+/* ---- lock screen ---- */
+html.locked,html.locked body{overflow:hidden}
+.gate{position:fixed;inset:0;z-index:90;display:grid;place-items:center;overflow:auto;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  background:radial-gradient(circle at 20% 15%,color-mix(in srgb,var(--pink) 45%,transparent),transparent 45%),
+             radial-gradient(circle at 85% 80%,color-mix(in srgb,var(--tape) 55%,transparent),transparent 50%),
+             radial-gradient(var(--grid) 1.4px,transparent 1.6px) 0 0/22px 22px,var(--sky)}
+.gate[hidden]{display:none}
+.gate-card{position:relative;width:min(440px,100%);background:var(--paper);border-radius:22px;padding:34px 24px 26px;box-shadow:0 18px 50px var(--shadow);
+  display:grid;gap:12px;justify-items:center;text-align:center}
+.gate-card::before{content:"";position:absolute;top:-12px;left:50%;width:110px;height:28px;transform:translateX(-50%) rotate(-3deg);
+  background:repeating-linear-gradient(90deg,var(--pink) 0 8px,color-mix(in srgb,var(--pink) 60%,white) 8px 16px);opacity:.9;border-radius:2px}
+.gate-langs{position:absolute;top:12px;right:12px;display:flex;gap:2px;background:var(--paper-2);border-radius:999px;padding:3px}
+.gate-langs button{border:0;background:transparent;border-radius:999px;padding:2px 10px;font-family:var(--f-hand);font-size:14px;color:var(--ink-soft);cursor:pointer}
+.gate-langs button[aria-pressed="true"]{background:var(--pink);color:#4a2333}
+.gate-lock{font-size:42px;line-height:1;animation:catBob 2.4s ease-in-out infinite}
+.gate-card h1{font-family:var(--f-round);font-weight:700;font-size:clamp(22px,5vw,28px);color:var(--cobalt);text-wrap:balance}
+html[lang="zh"] .gate-card h1{font-family:var(--f-zh);font-weight:400}
+.gate-sub{margin:0;color:var(--ink-soft);font-size:14px}
+.gate-card .field{text-align:center;font-size:17px}
+.gate-msg{margin:0;min-height:1.4em;color:var(--pink-ink);font-family:var(--f-round);font-weight:700;font-size:14px}
+.gate-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.gate-hints{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-family:var(--f-hand);font-size:16px;color:var(--ink)}
+.gate-hints li{background:var(--butter);color:#4d4220;border-radius:12px;padding:6px 12px;animation:unfold .35s ease-out}
+.gate-card.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.gate.opening{animation:gateOut .6s ease forwards}
+@keyframes gateOut{to{opacity:0;transform:scale(1.04)}}
+
+/* ---- edit / add controls ---- */
+.ctl{display:inline-flex;gap:2px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+.ctl button{border:1px solid color-mix(in srgb,currentColor 35%,transparent);background:transparent;color:inherit;opacity:.8;font-family:var(--f-round);font-weight:700;font-size:11px;line-height:1;padding:3px 8px;border-radius:999px;cursor:pointer}
+.ctl{gap:4px;flex-wrap:wrap}
+.ctl button:hover,.ctl button:focus-visible{opacity:1;background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.addline{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center}
+.addline .field{flex:1 1 180px;width:auto}
+.tweak{font-size:14px;color:var(--ink-soft)}
+.tweak summary{cursor:pointer;font-family:var(--f-round)}
+.minilist{margin:8px 0 0;padding-left:18px;display:grid;gap:4px;color:var(--ink)}
+.modal{position:fixed;inset:0;background:rgba(18,28,48,.45);display:grid;place-items:center;z-index:70;
+  padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.modal[hidden]{display:none}
+.modal-card{background:var(--paper);color:var(--ink);border-radius:18px;padding:20px;width:min(520px,100%);display:grid;gap:14px;box-shadow:0 20px 50px var(--shadow)}
+.modal-card h3{font-family:var(--f-round);font-weight:700;color:var(--cobalt)}
+.ef{display:grid;gap:10px;overflow:auto;min-height:0;overscroll-behavior:contain;padding:2px 4px 2px 2px;margin:0 -4px 0 -2px}
+#editForm{max-height:calc(100dvh - 32px);grid-template-rows:auto minmax(0,1fr) auto}
+#editForm > .row{position:sticky;bottom:0;background:var(--paper);padding-top:10px;border-top:2px dashed var(--line)}
+.ef label{display:grid;gap:4px;font-size:13px;color:var(--ink-soft)}
+.ef textarea{min-height:90px;resize:vertical}
+/* ---- listen together ---- */
+.listen-as{font-size:14px;color:var(--ink-soft);margin-bottom:12px}
+.presence{color:var(--pink-ink);font-family:var(--f-round);font-weight:700}
+.together{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--butter);color:#4d4220;border-radius:14px;padding:10px 14px;margin-bottom:16px;font-family:var(--f-round)}
+.together[hidden]{display:none}
+
+footer{text-align:center;color:var(--ink-soft);font-family:var(--f-hand)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);
+  padding:12px 18px;border-radius:14px;font-family:var(--f-hand);font-size:16px;max-width:min(92vw,440px);text-align:center;z-index:60;box-shadow:0 8px 20px var(--shadow)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<!-- blue-and-white porcelain decor -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="blossom">
+      <circle cx="0" cy="-9" r="8" fill="currentColor" opacity=".85"/><circle cx="8.6" cy="-2.8" r="8" fill="currentColor" opacity=".7"/>
+      <circle cx="5.3" cy="7.3" r="8" fill="currentColor" opacity=".85"/><circle cx="-5.3" cy="7.3" r="8" fill="currentColor" opacity=".7"/>
+      <circle cx="-8.6" cy="-2.8" r="8" fill="currentColor" opacity=".85"/><circle r="4" fill="#fffdf8"/><circle r="1.8" fill="currentColor"/>
+    </g>
+    <path id="leaf" d="M0 0 C8 -10 26 -10 34 0 C26 10 8 10 0 0Z" fill="currentColor" opacity=".55"/>
+    <g id="sprayG">
+      <path d="M0 40 C80 30 140 60 220 50 S330 20 380 60" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round" opacity=".7"/>
+      <path d="M150 52 C170 90 160 130 190 160" stroke="currentColor" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".6"/>
+      <path d="M260 44 C270 80 300 100 290 140" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" opacity=".6"/>
+      <use href="#leaf" transform="translate(60 36) rotate(-30)"/><use href="#leaf" transform="translate(110 44) rotate(25)"/>
+      <use href="#leaf" transform="translate(205 52) rotate(-50)"/><use href="#leaf" transform="translate(320 36) rotate(30)"/>
+      <use href="#leaf" transform="translate(165 100) rotate(60)"/><use href="#leaf" transform="translate(280 95) rotate(110)"/>
+      <use href="#blossom" transform="translate(40 52) scale(1.4)"/><use href="#blossom" transform="translate(130 70) scale(1.1)"/>
+      <use href="#blossom" transform="translate(190 165) scale(1.5)"/><use href="#blossom" transform="translate(240 30) scale(1)"/>
+      <use href="#blossom" transform="translate(292 145) scale(1.3)"/><use href="#blossom" transform="translate(370 64) scale(1.2)"/>
+      <circle cx="175" cy="128" r="5" fill="currentColor" opacity=".6"/><circle cx="300" cy="110" r="4" fill="currentColor" opacity=".6"/><circle cx="95" cy="30" r="4" fill="currentColor" opacity=".6"/>
+    </g>
+  </defs>
+</svg>
+<div class="decor" aria-hidden="true">
+  <div class="band"></div>
+  <svg class="spray tl" viewBox="-20 -10 420 200"><use href="#sprayG"/></svg>
+  <svg class="spray mr" viewBox="-20 -10 420 200"><use href="#sprayG"/></svg>
+  <svg class="spray br" viewBox="-20 -10 420 200"><use href="#sprayG"/></svg>
+</div>
+
+<!-- lock screen: a cute gate, not real security (static site) -->
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateQ">
+  <form class="gate-card" id="gateForm" autocomplete="off">
+    <div class="gate-lock" aria-hidden="true">🔒</div>
+    <h1 id="gateQ" data-i18n="gateQ"></h1>
+    <p class="gate-sub" data-i18n="gateSub"></p>
+    <input class="field" id="gateIn" data-i18n-ph="gatePh" autocapitalize="off" spellcheck="false" required>
+    <p class="gate-msg" id="gateMsg" aria-live="polite"></p>
+    <div class="gate-btns">
+      <button class="btn pink" type="submit" data-i18n="gateGo"></button>
+      <button class="btn" type="button" id="gateHint" data-i18n="gateHintBtn"></button>
+    </div>
+    <ol class="gate-hints" id="gateHints"></ol>
+  </form>
+</div>
+<script>try{if(localStorage.getItem("nb_unlocked")==="1")document.getElementById("gate").hidden=true;else document.documentElement.classList.add("locked")}catch(e){document.documentElement.classList.add("locked")}</script>
+
+<div class="wrap">
+
+  <!-- window + hero -->
+  <div class="window">
+    <div class="chrome">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <div class="addr">a-notebook-for-you</div>
+      <button class="sound" id="sound" aria-pressed="false" data-i18n="soundOff"></button>
+    </div>
+    <header class="hero">
+      <span class="script">a little notebook</span>
+      <h1 data-i18n-html="heroTitle"></h1>
+      <p data-i18n="heroSub"></p>
+      <button class="love-btn" id="love" data-i18n="loveBtn"></button>
+      <div class="love-out" id="loveOut" aria-live="polite"></div>
+    </header>
+  </div>
+
+  <nav class="tabs" aria-label="Sections">
+    <a href="#songs" data-i18n="tSongs"></a>
+    <a href="#study" data-i18n="tStudy"></a>
+    <a href="#diary" data-i18n="tDiary"></a>
+    <a href="#updates" data-i18n="tUpdates"></a>
+    <a href="#photos" data-i18n="tPhotos"></a>
+    <a href="#places" data-i18n="tPlaces"></a>
+    <a href="#game" data-i18n="tGame"></a>
+    <a href="#fixes" data-i18n="tFixes"></a>
+    <a href="#letter" data-i18n="tLetter"></a>
+    <a href="#reasons" data-i18n="tReasons"></a>
+    <a href="#types" data-i18n="tTypes"></a>
+  </nav>
+
+  <!-- songs -->
+  <section class="page" id="songs">
+    <span class="tape butter"></span>
+    <h2 data-i18n="songsH"></h2>
+    <p class="sub" data-i18n="songsSub"></p>
+    <div class="listen-as row">
+      <label for="meSel" data-i18n="listenAs"></label>
+      <select class="field" id="meSel" style="width:auto"><option value="me" data-i18n="whoMe"></option><option value="them" data-i18n="whoThem"></option></select>
+      <span class="presence" id="presence"></span>
+    </div>
+    <div class="together" id="together" hidden></div>
+    <div class="player">
+      <div class="deckcol">
+        <div class="deck">
+          <div class="turntable"><div class="vinyl" id="vinyl"></div><div class="arm" id="arm"></div></div>
+          <div class="now" id="nowPlaying" aria-live="polite"></div>
+        </div>
+        <div id="nowEmbed"></div>
+      </div>
+      <div class="plist"><h3 data-i18n="tracksH"></h3><ul id="plist"></ul></div>
+    </div>
+    <form class="addsong" id="songForm">
+      <h3 data-i18n="addSongH"></h3>
+      <div class="fields">
+        <input class="field" id="songTitle" required maxlength="60" data-i18n-ph="songTitlePh">
+        <input class="field" id="songArtist" maxlength="60" data-i18n-ph="songArtistPh">
+        <textarea class="field" id="songWhy" maxlength="5000" rows="5" data-i18n-ph="songWhyPh"></textarea>
+        <input class="field" id="songLink" type="url" maxlength="300" data-i18n-ph="songLinkPh">
+      </div>
+      <div class="row">
+        <label for="songWho" data-i18n="who"></label>
+        <select class="field" id="songWho" style="width:auto">
+          <option value="me" data-i18n="whoMe"></option>
+          <option value="them" data-i18n="whoThem"></option>
+        </select>
+        <button class="btn pink" type="submit" data-i18n="addSong"></button>
+      </div>
+    </form>
+  </section>
+
+  <!-- study break -->
+  <section class="page" id="study">
+    <span class="tape"></span><span class="sticker">🐰</span>
+    <h2 data-i18n="studyH"></h2>
+    <p class="sub" data-i18n="studySub"></p>
+    <div class="study">
+      <div class="card">
+        <h3 data-i18n="hugH"></h3>
+        <div class="note-out" id="cheer" aria-live="polite"></div>
+        <button class="btn pink" id="cheerBtn" data-i18n="hugBtn"></button>
+        <details class="tweak"><summary data-i18n="editCheers"></summary>
+          <ul class="minilist" id="cheerList"></ul>
+          <form class="addline" data-add="cheer"><input class="field" name="a" maxlength="200" required data-i18n-ph="addCheerPh"><button class="btn" data-i18n="add"></button></form>
+        </details>
+      </div>
+      <div class="card">
+        <h3 data-i18n="breakH"></h3>
+        <div class="timer" id="timer">05:00</div>
+        <div class="row">
+          <button class="btn butter" id="timerBtn" data-i18n="start"></button>
+          <button class="btn" id="timerReset" data-i18n="reset"></button>
+        </div>
+      </div>
+      <div class="card">
+        <h3 data-i18n="patH"></h3>
+        <button class="bunny" id="bunny" aria-label="pat">🐰</button>
+        <div id="patCount" class="chicken"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- shared diary -->
+  <section class="page" id="diary">
+    <span class="tape pink"></span><span class="tape butter"></span>
+    <h2 data-i18n="diaryH"></h2>
+    <p class="sub" data-i18n="diarySub"></p>
+    <form class="diary-form" id="diaryForm">
+      <textarea id="diaryText" required data-i18n-ph="diaryPh"></textarea>
+      <div class="row">
+        <label for="diaryWho" data-i18n="who"></label>
+        <select id="diaryWho">
+          <option value="me" data-i18n="whoMe"></option>
+          <option value="them" data-i18n="whoThem"></option>
+        </select>
+        <button class="btn pink" type="submit" data-i18n="stick"></button>
+      </div>
+    </form>
+    <div class="notes" id="notes"></div>
+  </section>
+
+  <!-- life updates -->
+  <section class="page" id="updates">
+    <span class="tape butter"></span><span class="sticker">🌱</span>
+    <h2 data-i18n="updatesH"></h2>
+    <p class="sub" data-i18n="updatesSub"></p>
+    <form class="updform" id="updForm">
+      <div class="fields">
+        <input class="field" id="updText" required maxlength="300" data-i18n-ph="updatePh">
+        <input class="field" id="updTag" maxlength="30" data-i18n-ph="updateTagPh">
+      </div>
+      <div class="row">
+        <label for="updWho" data-i18n="who"></label>
+        <select class="field" id="updWho" style="width:auto">
+          <option value="me" data-i18n="whoMe"></option>
+          <option value="them" data-i18n="whoThem"></option>
+        </select>
+        <button class="btn pink" type="submit" data-i18n="addUpdate"></button>
+      </div>
+    </form>
+    <ul class="timeline" id="updateList"></ul>
+  </section>
+
+  <!-- polaroids -->
+  <section class="page" id="photos">
+    <span class="tape pink"></span><span class="sticker">📷</span>
+    <h2 data-i18n="photosH"></h2>
+    <p class="sub" data-i18n="photosSub"></p>
+    <div class="addphoto">
+      <input type="file" id="photoFile" accept="image/*" multiple>
+      <input class="field" id="photoCap" maxlength="60" data-i18n-ph="captionPh">
+      <label class="btn pink" for="photoFile" data-i18n="addPhoto"></label>
+    </div>
+    <div class="pwall" id="pwall"></div>
+  </section>
+
+  <!-- places -->
+  <section class="page" id="places">
+    <span class="tape"></span><span class="tape butter"></span><span class="sticker">🗺️</span>
+    <h2 data-i18n="placesH"></h2>
+    <p class="sub" data-i18n="placesSub"></p>
+    <div class="mapframe"><div id="map" role="region" aria-label="map"></div></div>
+    <p class="maphint" id="mapHint" data-i18n="mapHint"></p>
+    <form class="placeform" id="placeForm">
+      <div class="fields">
+        <input class="field" id="plName" required maxlength="80" data-i18n-ph="placeCityPh">
+        <input class="field" id="plDate" maxlength="30" data-i18n-ph="placeDatePh">
+        <input class="field" id="plNote" maxlength="300" data-i18n-ph="placeNotePh">
+      </div>
+      <div class="row">
+        <input type="file" id="plPhoto" accept="image/*" class="sr-file">
+        <label class="btn" for="plPhoto" id="plPhotoLbl" data-i18n="placePhoto"></label>
+        <button class="btn pink" type="submit" id="plSubmit" data-i18n="addPlace"></button>
+      </div>
+    </form>
+    <div class="pwall" id="placeList"></div>
+  </section>
+
+  <!-- identity v -->
+  <section class="page" id="game">
+    <span class="tape"></span>
+    <h2 data-i18n="gameH"></h2>
+    <p class="sub" data-i18n="gameSub"></p>
+    <div class="game">
+      <div class="polaroid"><div>🎭</div><span id="gameNameCard">Identity V</span></div>
+      <div style="display:grid;gap:12px;min-width:0">
+        <div class="acct"><span class="lbl" data-i18n="fName"></span><span class="acct-name" id="gameName"></span><span class="lbl" data-i18n="myId"></span><span><span class="idbox" id="gameId"></span><span id="gameCtl"></span></span></div>
+        <div class="row">
+          <button class="btn pink" id="invite" data-i18n="invite"></button>
+        </div>
+        <span class="chicken" data-i18n="chicken"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- fixes -->
+  <section class="page" id="fixes">
+    <span class="tape butter"></span><span class="sticker">✏️</span>
+    <h2 data-i18n="fixesH"></h2>
+    <p class="sub" data-i18n="fixesSub"></p>
+    <ul class="fixes" id="fixList"></ul>
+    <form class="addline" data-add="fix"><input class="field" name="a" maxlength="300" required data-i18n-ph="addFixWasPh"><input class="field" name="b" maxlength="300" data-i18n-ph="addFixNowPh"><button class="btn" data-i18n="add"></button></form>
+  </section>
+
+  <!-- letter -->
+  <section class="page" id="letter">
+    <span class="tape pink"></span>
+    <h2 data-i18n="letterH"></h2>
+    <p class="sub" data-i18n="letterSub"></p>
+    <div class="envelope">
+      <button class="env-btn" id="envBtn"><span data-i18n="openEnv"></span></button>
+      <div class="letter" id="letterBody" hidden></div>
+      <div id="letterCtl"></div>
+    </div>
+  </section>
+
+  <!-- reasons -->
+  <section class="page" id="reasons">
+    <span class="tape"></span><span class="sticker">🎵</span>
+    <h2 data-i18n="reasonsH"></h2>
+    <p class="sub" data-i18n="reasonsSub"></p>
+    <div class="reasons" id="reasonList"></div>
+    <form class="addline" data-add="memory"><input class="field" name="a" maxlength="300" required data-i18n-ph="addMemoryPh"><select class="field" name="who" style="width:auto"><option value="me" data-i18n="whoMe"></option><option value="them" data-i18n="whoThem"></option></select><button class="btn" data-i18n="add"></button></form>
+  </section>
+
+  <!-- ENFP x INTJ -->
+  <section class="page" id="types">
+    <span class="tape pink"></span><span class="tape butter"></span>
+    <h2 data-i18n="typesH"></h2>
+    <div class="mbti-row">
+      <div class="duo" id="duo"></div>
+      <figure class="mini-pic"><img src="images/mbti.jpg" alt="INTJ × ENFP" width="444" height="520" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <!-- biu: original illustration, plays when scrolled into view -->
+  <section class="page biu-page" id="biu">
+    <span class="tape pink"></span>
+    <button class="biu-stage" id="biuStage" type="button" aria-label="Maia → Sihao: biu">
+      <span class="biu-img">
+        <img class="biu-boy" id="biuBoy" src="images/biu-boy.png" alt="" width="736" height="563">
+        <img class="biu-girl" src="images/biu-girl.png" alt="" width="736" height="563">
+        <span class="biu-hint" id="biuHint">🍓 <span data-i18n="biuTap"></span></span>
+        <svg class="biu-fx" viewBox="0 0 736 563" aria-hidden="true">
+          <defs><path id="hrt" d="M0 -3 C -5 -11 -15 -5 -8 3 L 0 10 L 8 3 C 15 -5 5 -11 0 -3Z"/></defs>
+          <g id="biuHearts" fill="#e0457b"></g><g id="petals"></g>
+          <text id="biuText" x="250" y="70" font-family="Itim, cursive" font-size="44" fill="#e0457b" opacity="0">Biu ♡</text>
+        </svg>
+      </span>
+    </button>
+    <p class="biu-cap"><b>Maia → Sihao</b></p>
+  </section>
+
+  <!-- the question -->
+  <section class="page ask-page" id="ask">
+    <span class="tape pink"></span><span class="tape butter"></span>
+    <div class="ask-box" id="askBox">
+      <img class="ask-cat" src="images/cat-rose.jpg" alt="" width="480" height="480">
+      <h2 class="ask-q" data-i18n="askQ"></h2>
+      <p class="ask-sub" data-i18n="askSub"></p>
+      <div class="ask-btns" id="askBtns">
+        <button class="btn pink ask-yes" type="button" id="askYes" data-i18n="askYes"></button>
+        <button class="btn ask-no" type="button" id="askNo" data-i18n="askNo"></button>
+      </div>
+      <p class="ask-done" id="askDone" hidden></p>
+      <p class="ask-said" id="askSaid"></p>
+    </div>
+  </section>
+
+  <footer><div class="sync" id="syncNote"></div></footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+<div class="modal" id="yesModal" hidden>
+  <div class="modal-card yes-card">
+    <img class="yes-pic" src="images/cats-yes.jpg" alt="" width="480" height="480" onerror="this.src='images/cat-rose.jpg'">
+    <h3 id="yesTitle"></h3>
+    <p class="yes-when" id="yesWhen"></p>
+    <button class="btn pink" type="button" id="yesClose" data-i18n="yesClose"></button>
+  </div>
+</div>
+<div class="modal" id="editModal" hidden>
+  <form class="modal-card" id="editForm">
+    <h3 data-i18n="editH"></h3>
+    <div class="ef" id="editFields"></div>
+    <div class="row" style="justify-content:flex-end"><button type="button" class="btn" id="editCancel" data-i18n="cancel"></button><button class="btn pink" type="submit" data-i18n="save"></button></div>
+  </form>
+</div>
+
+<script>
+/* =========================================================
+   ✍️  SỬA NỘI DUNG Ở ĐÂY — mỗi mục có 3 bản: vi / en / zh
+   ========================================================= */
+const CONFIG = {
+  // Supabase: dán URL + anon/publishable key (Project Settings → API). Để trống = lưu trên máy từng người.
+  supabase: { url: "https://fikzmqkjmyztszcxvful.supabase.co", anonKey: "sb_publishable_i9lxGenBTgDR9rphbYTpdA_lsoHzc4X" },
+  // ntfy: điện thoại Maia nhận thông báo khi Sihao bấm Yes (app ntfy, đăng ký kênh này)
+  ntfyTopic: "notebook-03c1db495d61267b7c11",
+  gameId: "75448081",            // ← ID Identity V
+  gameName: "maia念念",            // ← tên trong game
+  loveLines: [                    // nút chào — xoay vòng
+    {text:"Hi there ✿", note:"hello"},
+    {text:"Hey you", note:"just saying hi"},
+    {text:"Hope your day is going well", note:"☀︎"},
+  ],
+  cheers: [
+    {vi:"Học mệt rồi thì uống miếng nước đi.", en:"Tired? Go drink some water.", zh:"累了就去喝口水吧。"},
+    {vi:"Cậu giỏi hơn cậu nghĩ nhiều lắm.", en:"You're much better than you think.", zh:"你比你想象的厉害多了。"},
+    {vi:"Hít một hơi thật sâu. Cố thêm chút nữa thôi.", en:"Take a deep breath. Just a little longer.", zh:"深呼吸一下，再坚持一下下。"},
+    {vi:"Nghỉ 5 phút cũng không sao đâu.", en:"It's okay to rest for five minutes.", zh:"休息五分钟也没关系的。"},
+  ],
+  fixes: [
+    {was:{vi:"Hay im lặng khi giận, để cậu tự đoán.", en:"Going silent when upset and leaving you to guess.", zh:"生气时就沉默，让你去猜。"},
+     now:{vi:"Giờ tớ sẽ nói ra, kể cả khi khó nói.", en:"Now I'll say it out loud, even when it's hard.", zh:"现在我会说出来，就算很难开口。"}},
+    {was:{vi:"Không để ý lúc cậu mệt.", en:"Not noticing when you were tired.", zh:"没注意到你累了。"},
+     now:{vi:"Tớ sẽ hỏi \"hôm nay cậu ổn không?\" nhiều hơn.", en:"I'll ask \"are you okay today?\" more often.", zh:"我会多问一句\"你今天还好吗？\""}},
+    {was:{vi:"(viết lỗi thật của cậu vào đây)", en:"(write your real mistake here)", zh:"（在这里写真实的错误）"},
+     now:{vi:"(và điều cậu đã thay đổi)", en:"(and what you've changed)", zh:"（以及你改变了什么）"}},
+  ],
+  letter: {
+    vi:"Gửi Tư Hạo,\nTớ biết tớ đã sai, và tớ không muốn giả vờ như chưa có gì.\nTrang này không để ép cậu điều gì cả. Tớ chỉ muốn xin lỗi cho đàng hoàng, và cho cậu biết tớ đang cố gắng tốt hơn.\nNếu cậu thấy ổn, mình làm bạn lại từ đầu nhé, bắt đầu bằng một ván game.\n— Maia",
+    en:"Dear Sihao,\nI know I was wrong, and I don't want to pretend nothing happened.\nThis page isn't here to pressure you. I just wanted to say sorry properly, and let you know I'm trying to be better.\nIf you're up for it, maybe we can be friends again from the start, beginning with one game.\n— Maia",
+    zh:"给你：\n我知道是我错了，我也不想假装什么都没发生。\n这个页面不是想给你压力，只是想好好道个歉，也让你知道我在努力变得更好。\n如果你觉得可以，我们就从朋友重新开始吧，先从一局游戏开始。\n—— Maia",
+  },
+  reasons: [
+    {vi:"Cách cậu cười khi thắng một ván game.", en:"The way you laugh when you win a match.", zh:"你赢了游戏时的笑。"},
+    {vi:"Cậu dạy tớ nói tiếng Trung cho đúng thanh.", en:"You taught me to get my Chinese tones right.", zh:"你教我把中文声调说对。"},
+    {vi:"Nói chuyện lẫn lộn 3 thứ tiếng.", en:"Chatting in three languages at once.", zh:"三种语言混着聊天。"},
+    {vi:"Cậu kiên nhẫn với tớ dù tớ chơi gà.", en:"You stayed patient even though I'm bad at games.", zh:"我玩得很菜你也很有耐心。"},
+    {vi:"(thêm một kỷ niệm thật)", en:"(add a real memory)", zh:"（加一个真实的回忆）"},
+    {vi:"(và một kỷ niệm nữa)", en:"(and another one)", zh:"（再加一个）"},
+  ],
+  mbti: {
+    me:   {name:"Maia",  type:"ENFP", sign:"♏", zodiac:{vi:"Bọ Cạp", en:"Scorpio", zh:"天蝎座"},
+           major:{vi:"Khoa học máy tính + Truyền thông", en:"CS + Communication", zh:"计算机科学 + 传播学"},
+           from:{vi:"Hà Nội, Việt Nam", en:"Hanoi, Vietnam", zh:"越南河内"},
+           uni:{vi:"DePauw University", en:"DePauw University", zh:"德堡大学 DePauw"},
+           height:{vi:"1m70", en:"170 cm (5'7\")", zh:"170 cm"}, nick:{vi:"Người truyền cảm hứng", en:"The Campaigner", zh:"竞选者"},
+           traits:[{vi:"Nói nhiều, nghĩ ra cả trăm ý tưởng một lúc", en:"Talks a lot, has a hundred ideas at once", zh:"话多，一下子冒出一百个点子"},
+                   {vi:"Dễ xúc động, nhớ từng kỷ niệm nhỏ", en:"Feels everything, remembers every little moment", zh:"容易感动，记得每个小瞬间"},
+                   {vi:"Hay lạc đề giữa chừng", en:"Gets sidetracked a lot", zh:"常常聊着聊着就跑题"}]},
+    them: {name:"Sihao", type:"INTJ", sign:"♓", zodiac:{vi:"Song Ngư", en:"Pisces", zh:"双鱼座"},
+           major:{vi:"Kinh tế", en:"Economics", zh:"经济学"},
+           from:{vi:"Tô Châu, Trung Quốc", en:"Suzhou, China", zh:"中国苏州"},
+           uni:{vi:"UW–Madison (năm 1–2 học ở DePauw cùng Maia)", en:"UW–Madison (DePauw with Maia in years 1–2)", zh:"威斯康星大学麦迪逊分校（大一大二和 Maia 一起在 DePauw）"},
+           height:{vi:"1m78", en:"178 cm (5'10\")", zh:"178 cm"}, nick:{vi:"Nhà kiến trúc", en:"The Architect", zh:"建筑师"},
+           traits:[{vi:"Ít nói nhưng câu nào cũng chắc", en:"Says little, means every word", zh:"话不多，但句句算数"},
+                   {vi:"Lúc nào cũng có kế hoạch", en:"Always has a plan", zh:"永远有计划"},
+                   {vi:"Ngoài lạnh trong ấm", en:"Cool outside, warm inside", zh:"外冷内热"}]},
+    fit: [
+      {vi:"Một người bình tĩnh, một người thêm chút hỗn loạn vui vẻ.", en:"One brings calm, the other brings a little happy chaos.", zh:"一个负责冷静，一个负责一点快乐的混乱。"},
+      {vi:"Một người nghĩ ra ý tưởng, một người biến nó thành kế hoạch.", en:"One comes up with ideas, the other turns them into plans.", zh:"一个想点子，一个把点子变成计划。"},
+      {vi:"Chung chữ N: cả hai đều thích nghĩ về những điều xa xôi.", en:"Both N: we both like thinking about big, faraway things.", zh:"都是 N：都喜欢想很远很远的事。"},
+      {vi:"Người ta bảo ENFP và INTJ nói chuyện rất hợp.", en:"People say ENFP and INTJ make good conversation partners.", zh:"大家说 ENFP 和 INTJ 聊天很合得来。"},
+    ],
+  },
+  songs: [],  // bài hát thêm bằng form trên trang (lưu trong Supabase)
+  updates: [   // việc gần đây viết sẵn (date: YYYY-MM-DD); hai đứa thêm tiếp bằng form trên trang
+    {date:"2026-11-01", who:"me", tag:"Identity V", text:{vi:"Đang luyện Identity V mỗi ngày, vẫn gà nhưng đỡ hơn rồi.", en:"Practising Identity V every day. Still bad, but getting better.", zh:"每天都在练第五人格，还是很菜，但进步了一点。"}},
+  ],
+  photos: [    // bỏ ảnh vào thư mục photos/ rồi thêm dòng ở đây
+    // {src:"photos/anh-1.jpg", caption:{vi:"Hôm đi biển", en:"Beach day", zh:"去海边那天"}, when:"2025-08"},
+  ],
+};
+
+/* ---------- UI text ---------- */
+const T = {
+  vi:{gateQ:"Lần đầu Maia và Sihao gặp nhau là ở đâu?",gateSub:"Trả lời đúng để mở cuốn sổ 🔐",gatePh:"Gõ câu trả lời…",gateGo:"Mở khoá",gateHintBtn:"Cần gợi ý? 💡",gateWrong:"Chưa đúng rồi… thử lại nha 🥺",gateRight:"Đúng rồi! Mở sổ nè 💗",gateNoMore:"Hết gợi ý rồi 🙈",gateHints:"Là một toà nhà ở trường 🏫|Có hai chữ, chữ thứ hai là “Hall”|Chữ đầu tiên có 7 chữ cái, bắt đầu bằng “H”",yesTitle:"💗 Sihao đồng ý rồi!",yesClose:"Yayyy 💗",yesWhen:"lúc",askQ:"Cho em thích anh nhé? 🌹",askSub:"Không vội đâu, em chỉ muốn anh biết thôi 🥺",askYes:"Đồng ý 💗",askNo:"Không",askDone:"Yayyy! 💗 Cảm ơn anh",saidYes:"đã bấm Đồng ý ♡",diaryEmpty:"Chưa có trang nào. Viết dòng đầu tiên ở trên nhé.",biuTap:"Bấm vào đây để bắn tim",biuHint:"bấm để biu lại",tPlaces:"Nơi đã đi",placesH:"Những nơi đã đi",placesSub:"Mỗi thành phố là một cái ghim. Thêm ảnh nếu có.",mapHint:"Gõ tên thành phố rồi bấm Thêm. Không tìm thấy thì chạm vào bản đồ để tự đặt ghim.",placeCityPh:"Thành phố (vd: Đà Lạt)",placeDatePh:"Khi nào (vd: 08/2025)",placeNotePh:"Ghi chú nhỏ",placePhoto:"📷 Thêm ảnh",photoPicked:"📷 Đã chọn ảnh",addPlace:"Ghim lên bản đồ",placeNotFound:"Không tìm thấy thành phố này. Chạm vào bản đồ để đặt ghim rồi bấm Thêm lại nha.",pinPlaced:"Đã đặt ghim. Điền tên rồi bấm Thêm.",placeAdded:"Đã ghim lên bản đồ ✿",homeMe:"Quê Maia",homeThem:"Quê Sihao",fCity:"Thành phố",fDate:"Khi nào",fNote:"Ghi chú",searching:"Đang tìm…",editH:"Sửa",cancel:"Huỷ",save:"Lưu",confirmDel:"Xoá mục này nhé?",add:"Thêm",editCheers:"Sửa lời cổ vũ",addCheerPh:"Thêm một lời cổ vũ",addFixWasPh:"Điều tớ đã sai",addFixNowPh:"Từ giờ tớ sẽ…",addMemoryPh:"Thêm một kỷ niệm",addFitPh:"Thêm một điểm hợp nhau",addTraitPh:"Thêm một nét tính cách",fText:"Nội dung",fTitle:"Tên bài",fArtist:"Ca sĩ",fWhy:"Vì sao bài này",fLink:"Link Spotify / YouTube",fTag:"Nhãn",fCap:"Chú thích",fWas:"Điều đã sai",fNow:"Sẽ làm khác thế nào",fId:"ID game",fName:"Tài khoản",emptyErr:"Đừng để trống nha.",listenAs:"Tớ là:",isPlaying:"đang nghe",joinListen:"Nghe cùng",isHere:"cũng đang ở đây",soundOff:"♪ bật nhạc",soundOn:"♪ đang phát",heroTitle:"Gửi Tư Hạo, <em>một cuốn sổ nhỏ</em>",heroSub:"Có game, bài hát và vài dòng ghi chép. Rảnh thì ghé xem nha.",
+    loveBtn:"Chào một câu ✿",tStudy:"Học mệt quá",tDiary:"Nhật ký chung",tUpdates:"Dạo này",tPhotos:"Ảnh",updatesH:"Dạo này hai đứa thế nào",updatesSub:"Mỗi người viết vài dòng về việc mình đang làm, để người kia biết mình sống ra sao.",updatePh:"Dạo này cậu làm gì?",updateTagPh:"Nhãn (vd: học, game)",addUpdate:"Thêm",photosH:"Ảnh",photosSub:"Dán ảnh vào như polaroid. Thêm một dòng chú thích nếu muốn.",addPhoto:"Thêm ảnh",captionPh:"Chú thích (không bắt buộc)",photoHint:"ảnh sẽ nằm ở đây",photoFull:"Bộ nhớ đầy rồi, xoá bớt ảnh cũ rồi thử lại nha.",photoErr:"Không đọc được ảnh này, thử ảnh khác nha.",addSongH:"Thêm bài hát",songTitlePh:"Tên bài",songArtistPh:"Ca sĩ",songWhyPh:"Vì sao bài này?",addSong:"Thêm vào playlist",songAdded:"Đã thêm vào playlist ♪",songLinkPh:"Link Spotify / YouTube (không bắt buộc)",syncErr:"Chưa lưu được, kiểm tra mạng rồi thử lại nha.",syncOn:"đang đồng bộ: Maia và Sihao thấy cùng một cuốn sổ",syncOff:"",tGame:"Chơi game",tFixes:"Tớ sẽ sửa",tLetter:"Lá thư",tReasons:"Kỷ niệm",tTypes:"Hồ sơ",typesH:"Hồ sơ nhỏ",fZodiac:"Cung hoàng đạo",fUni:"Trường",fHeight:"Chiều cao",fMajor:"Ngành",fFrom:"Quê",typesSub:"Hai tính cách gần như ngược nhau, chỉ chung chữ N.",tSongs:"Playlist",
+    studyH:"Học mệt quá à?",studySub:"Ghé góc này khi cần một lời cổ vũ hoặc 5 phút nghỉ.",hugH:"Một lời động viên",hugBtn:"Cổ vũ tớ đi",breakH:"Nghỉ 5 phút",start:"Bắt đầu",pause:"Tạm dừng",reset:"Đặt lại",
+    patH:"Xoa đầu thỏ",pats:n=>`Đã xoa ${n} lần. Thỏ vui lắm.`,breakDone:"Hết giờ nghỉ rồi. Cố lên nha!",
+    diaryH:"Nhật ký chung",diarySub:"Viết vài dòng về hôm nay. Mỗi người một màu giấy.",diaryPh:"Hôm nay của cậu thế nào?",who:"Ai viết:",whoMe:"Maia",whoThem:"Sihao",stick:"Dán vào sổ",del:"xoá",example:"ví dụ",
+    gameH:"Chơi Identity V với tớ không?",gameSub:"Bấm một cái là lời mời được gửi.",myId:"ID của tớ:",invite:"Gửi lời mời chơi chung",
+    chicken:"Giải thích trước: tớ mới học chơi nên còn hơi gà, nhưng tớ đang luyện mỗi ngày đó. Nhờ cậu gánh nha 🐔",inviteSent:"Đã gửi lời mời! ID của tớ đã được copy, dán vào game là tìm thấy. Tớ gà lắm, đừng cười nha 🐔",
+    fixesH:"Những điều tớ sai và sẽ sửa",fixesSub:"Tớ viết ra để không quên.",letterH:"Điều tớ muốn nói",letterSub:"Mở khi cậu sẵn sàng.",openEnv:"Mở thư",
+    reasonsH:"Những điều tớ còn nhớ",reasonsSub:"Bật nhạc ở góc trên rồi cuộn xuống, mỗi dòng là một nốt nhạc.",songsH:"Playlist nho nhỏ ♪",tracksH:"Các bài",songsSub:"Bấm một bài để nghe.",noSongs:"Chưa có bài nào. Thêm bài đầu tiên ở dưới nha.",
+    listen:"Nghe",film:"Bài hát",footer:"tự tay làm · 手作 · handmade"},
+  en:{placeChangePhoto:"📷 Change photo",placeRemovePhoto:"Remove photo",gateQ:"Where did Maia and Sihao first meet?",gateSub:"Answer right to open the notebook 🔐",gatePh:"Type your answer…",gateGo:"Unlock",gateHintBtn:"Need a hint? 💡",gateWrong:"Not quite… try again 🥺",gateRight:"Yes! Opening the notebook 💗",gateNoMore:"No more hints 🙈",gateHints:"It's a building on campus 🏫|Two words, the second one is “Hall”|The first word has 7 letters and starts with “H”",yesTitle:"💗 Sihao said YES!",yesClose:"Yayyy 💗",yesWhen:"at",askQ:"Will you let me like you? 🌹",askSub:"No rush, I just wanted you to know 🥺",askYes:"Yes 💗",askNo:"No",askDone:"Yayyy! 💗 Thank you",saidYes:"said yes ♡",diaryEmpty:"No notes yet. Write the first one above.",biuTap:"Tap to shoot a heart",biuHint:"tap to biu again",tPlaces:"Places",placesH:"Places we've been",placesSub:"Each city gets a pin. Add a photo if you have one.",mapHint:"Type a city and tap Add. If it can't be found, tap the map to drop the pin yourself.",placeCityPh:"City (e.g. Kyoto)",placeDatePh:"When (e.g. 08/2025)",placeNotePh:"A little note",placePhoto:"📷 Add photo",photoPicked:"📷 Photo picked",addPlace:"Pin it",placeNotFound:"Couldn't find that city. Tap the map to drop a pin, then tap Add again.",pinPlaced:"Pin dropped. Add a name, then tap Add.",placeAdded:"Pinned on the map ✿",homeMe:"Maia's hometown",homeThem:"Sihao's hometown",fCity:"City",fDate:"When",fNote:"Note",searching:"Searching…",editH:"Edit",cancel:"Cancel",save:"Save",confirmDel:"Delete this?",add:"Add",editCheers:"Edit cheers",addCheerPh:"Add a cheer",addFixWasPh:"What I got wrong",addFixNowPh:"From now on I'll…",addMemoryPh:"Add a memory",addFitPh:"Add a way we get along",addTraitPh:"Add a trait",fText:"Text",fTitle:"Title",fArtist:"Artist",fWhy:"Why this song",fLink:"Spotify / YouTube link",fTag:"Tag",fCap:"Caption",fWas:"What went wrong",fNow:"What I'll do instead",fId:"Game ID",fName:"Account",emptyErr:"This can't be empty.",listenAs:"I'm:",isPlaying:"is playing",joinListen:"Listen together",isHere:"is here too",soundOff:"♪ sound on",soundOn:"♪ playing",heroTitle:"For Sihao, <em>a little notebook</em>",heroSub:"Games, songs and a few notes. Drop by whenever you like.",
+    loveBtn:"Say hi ✿",tStudy:"Study break",tDiary:"Diary",tUpdates:"Lately",tPhotos:"Photos",updatesH:"What we've been up to",updatesSub:"Each of us writes a few lines about life lately, so the other one knows how it's going.",updatePh:"What have you been up to?",updateTagPh:"Tag (e.g. study, game)",addUpdate:"Add",photosH:"Photos",photosSub:"Stick photos in like polaroids. Add a caption if you like.",addPhoto:"Add photos",captionPh:"Caption (optional)",photoHint:"a photo goes here",photoFull:"Storage is full. Delete an older photo and try again.",photoErr:"Couldn't read that image. Try another one.",addSongH:"Add a song",songTitlePh:"Song title",songArtistPh:"Artist",songWhyPh:"Why this song? Take your time, there's room for the whole story ✿",addSong:"Add to playlist",songAdded:"Added to the playlist ♪",songLinkPh:"Spotify / YouTube link (optional)",syncErr:"Couldn't save. Check your connection and try again.",syncOn:"synced: Maia and Sihao see the same notebook",syncOff:"",tGame:"Identity V",tFixes:"What I'll fix",tLetter:"Letter",tReasons:"Memories",tTypes:"Quick facts",typesH:"Quick facts",fZodiac:"Zodiac",fUni:"University",fHeight:"Height",fMajor:"Major",fFrom:"From",typesSub:"Almost opposite types, sharing only the N.",tSongs:"Playlist",
+    studyH:"Tired of studying?",studySub:"Come here when you need a little cheer or five minutes off.",hugH:"A little cheer",hugBtn:"Cheer me on",breakH:"5-minute break",start:"Start",pause:"Pause",reset:"Reset",
+    patH:"Pat the bunny",pats:n=>`Patted ${n} times. Bunny is happy.`,breakDone:"Break's over. You've got this!",
+    diaryH:"Shared diary",diarySub:"A few lines about today. One paper colour each.",diaryPh:"How was your day?",who:"Written by:",whoMe:"Maia",whoThem:"Sihao",stick:"Stick it in",del:"delete",example:"example",
+    gameH:"Play Identity V with me?",gameSub:"One tap and the invite is sent.",myId:"My ID:",invite:"Send a play invite",
+    chicken:"A little heads-up: I only just started learning, so I'm still pretty bad, but I'm practising every day. Please carry me 🐔",inviteSent:"Invite sent! My ID is copied, paste it in the game to find me. I'm bad at this, don't laugh 🐔",
+    fixesH:"What I got wrong, and what I'll fix",fixesSub:"Written down so I don't forget.",letterH:"What I want to say",letterSub:"Open it when you're ready.",openEnv:"Open letter",
+    reasonsH:"Things I still remember",reasonsSub:"Turn the sound on up top, then scroll. Each line plays a note.",songsH:"Little playlist ♪",tracksH:"Tracks",songsSub:"Tap a song to play it.",noSongs:"No songs yet. Add the first one below.",
+    listen:"Listen",film:"Song",footer:"handmade · 手作 · tự tay làm"},
+  zh:{gateQ:"Maia 和 Sihao 第一次见面是在哪里？",gateSub:"答对了才能打开小本子 🔐",gatePh:"输入答案…",gateGo:"解锁",gateHintBtn:"要提示吗？💡",gateWrong:"不对哦……再试试 🥺",gateRight:"答对啦！打开小本子 💗",gateNoMore:"没有更多提示啦 🙈",gateHints:"是学校里的一栋楼 🏫|两个英文单词，第二个是 “Hall”|第一个单词有 7 个字母，以 “H” 开头",yesTitle:"💗 Sihao 答应啦！",yesClose:"耶 💗",yesWhen:"时间",askQ:"可以让我喜欢你吗？🌹",askSub:"不着急，我只是想让你知道 🥺",askYes:"好呀 💗",askNo:"不要",askDone:"耶！💗 谢谢你",saidYes:"点了「好呀」♡",diaryEmpty:"还没有内容，在上面写第一条吧。",biuTap:"点这里发射爱心",biuHint:"点一下再 biu 一次",tPlaces:"去过的地方",placesH:"去过的地方",placesSub:"每个城市一个图钉，有照片就加上吧。",mapHint:"输入城市名再点添加。找不到的话，点一下地图自己放图钉。",placeCityPh:"城市（如：杭州）",placeDatePh:"时间（如：2025年8月）",placeNotePh:"写一句小记",placePhoto:"📷 加照片",photoPicked:"📷 已选照片",addPlace:"钉在地图上",placeNotFound:"没找到这个城市。点一下地图放图钉，再点添加。",pinPlaced:"图钉放好了，写上名字再点添加。",placeAdded:"已钉在地图上 ✿",homeMe:"Maia 的家乡",homeThem:"Sihao 的家乡",fCity:"城市",fDate:"时间",fNote:"小记",searching:"搜索中…",editH:"编辑",cancel:"取消",save:"保存",confirmDel:"要删除这条吗？",add:"添加",editCheers:"编辑打气的话",addCheerPh:"加一句打气的话",addFixWasPh:"我做错的事",addFixNowPh:"以后我会……",addMemoryPh:"加一个回忆",addFitPh:"加一条合得来的地方",addTraitPh:"加一个性格特点",fText:"内容",fTitle:"歌名",fArtist:"歌手",fWhy:"为什么是这首",fLink:"Spotify / YouTube 链接",fTag:"标签",fCap:"说明",fWas:"做错的事",fNow:"以后会怎么做",fId:"游戏 ID",fName:"账号",emptyErr:"不能留空哦。",listenAs:"我是：",isPlaying:"正在听",joinListen:"一起听",isHere:"也在这里",soundOff:"♪ 打开音乐",soundOn:"♪ 播放中",heroTitle:"给 Sihao 的<em>小本子</em>",heroSub:"有游戏、有歌，还有几句话。有空就来看看吧。",
+    loveBtn:"打个招呼 ✿",tStudy:"学累了",tDiary:"共同日记",tUpdates:"最近",tPhotos:"照片",updatesH:"我们最近在做什么",updatesSub:"两个人都写几句最近的生活，让对方知道自己过得怎么样。",updatePh:"你最近在做什么？",updateTagPh:"标签（如：学习、游戏）",addUpdate:"添加",photosH:"照片",photosSub:"像拍立得一样贴上照片，想写就加一句话。",addPhoto:"添加照片",captionPh:"写一句话（可不填）",photoHint:"照片放在这里",photoFull:"存储空间满了，删掉一张旧照片再试试。",photoErr:"这张图读不出来，换一张试试。",addSongH:"添加歌曲",songTitlePh:"歌名",songArtistPh:"歌手",songWhyPh:"为什么是这首？",addSong:"加入歌单",songAdded:"已加入歌单 ♪",songLinkPh:"Spotify / YouTube 链接（可不填）",syncErr:"没保存成功，检查一下网络再试试。",syncOn:"已同步：Maia 和 Sihao 看到的是同一本",syncOff:"",tGame:"第五人格",tFixes:"我会改",tLetter:"信",tReasons:"回忆",tTypes:"档案",typesH:"小档案",fZodiac:"星座",fUni:"大学",fHeight:"身高",fMajor:"专业",fFrom:"来自",typesSub:"几乎相反的两种人格，只共享一个 N。",tSongs:"歌单",
+    studyH:"学习累了吗？",studySub:"需要打打气或者休息五分钟的时候就来这里。",hugH:"给你打打气",hugBtn:"给我打打气",breakH:"休息五分钟",start:"开始",pause:"暂停",reset:"重置",
+    patH:"摸摸兔子",pats:n=>`摸了 ${n} 次，兔子很开心。`,breakDone:"休息结束啦，加油！",
+    diaryH:"共同日记",diarySub:"写几句今天的事，一人一种颜色的纸。",diaryPh:"你今天过得怎么样？",who:"谁写的：",whoMe:"Maia",whoThem:"Sihao",stick:"贴进本子",del:"删除",example:"示例",
+    gameH:"要和我一起玩第五人格吗？",gameSub:"点一下就发出邀请。",myId:"我的 ID：",invite:"发送一起玩的邀请",
+    chicken:"先解释一下：我刚开始学，所以还有点菜，不过我每天都在练习哦。求带 🐔",inviteSent:"邀请已发送！我的 ID 已复制，粘贴到游戏里就能找到我。我很菜，不许笑 🐔",
+    fixesH:"我做错的事，和我会怎么改",fixesSub:"写下来，提醒自己别忘。",letterH:"想对你说的话",letterSub:"准备好了再打开。",openEnv:"打开信",
+    reasonsH:"我还记得的事",reasonsSub:"先打开右上角的音乐，再往下滑，每一行都是一个音符。",songsH:"小小歌单 ♪",tracksH:"曲目",songsSub:"点一首歌就能听。",noSongs:"还没有歌，在下面加第一首吧。",
+    listen:"去听",film:"歌曲",footer:"手作 · handmade · tự tay làm"},
+};
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const store = {
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}}
+};
+let lang = "en"; // English only
+const t = k => T[lang][k];
+const tx = v => v==null?"":typeof v==="string"?v:(v[lang]??v.en??"");
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let toastTimer;
+function toast(msg){const el=$("#toast");el.textContent=msg;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,4200)}
+
+/* ---------- sound (WebAudio, starts only after a tap) ---------- */
+let ctx=null, soundOn=false;
+// piano: C major pentatonic around middle C, so every tap sounds in key
+const SCALE=[261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25,783.99,880.00];
+let noiseBuf=null,master=null;
+function bus(){ // one shared limiter so chords never clip
+  if(!master||master.context!==ctx){master=ctx.createDynamicsCompressor();master.threshold.value=-10;master.knee.value=8;master.ratio.value=8;master.attack.value=.003;master.release.value=.25;master.connect(ctx.destination)}
+  return master;
+}
+function hammer(now,vol){ // short felt "thump" when the hammer hits the string
+  if(!noiseBuf){noiseBuf=ctx.createBuffer(1,ctx.sampleRate*.03,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let k=0;k<d.length;k++)d[k]=(Math.random()*2-1)*(1-k/d.length)}
+  const n=ctx.createBufferSource(),bp=ctx.createBiquadFilter(),g=ctx.createGain();
+  n.buffer=noiseBuf;bp.type="bandpass";bp.frequency.value=1800;bp.Q.value=.8;g.gain.value=vol*.12;
+  n.connect(bp).connect(g).connect(bus());n.start(now);
+}
+function note(i,vol=.18){
+  if(!soundOn||!ctx)return;
+  const f=SCALE[((i%SCALE.length)+SCALE.length)%SCALE.length], now=ctx.currentTime;
+  const out=ctx.createGain(),lp=ctx.createBiquadFilter();
+  out.gain.value=vol*1.1;lp.type="lowpass";lp.Q.value=.4;
+  lp.frequency.setValueAtTime(Math.min(f*10,9000),now);lp.frequency.exponentialRampToValueAtTime(f*2.5,now+1.8);
+  lp.connect(out).connect(bus());
+  // [harmonic, level, decay seconds]: higher partials fade faster, like a real string
+  [[1,1,3.6],[1,.45,3.3,1.0012],[2,.42,2.4],[3,.2,1.6],[4,.12,1.1],[5,.06,.8],[6,.035,.55],[7,.02,.4]].forEach(([h,a,d,det=1])=>{
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type="sine";o.frequency.value=f*h*det*Math.sqrt(1+.00035*h*h); // slight stretch = piano inharmonicity
+    g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(a,now+.004);
+    g.gain.exponentialRampToValueAtTime(a*.45,now+.15);g.gain.exponentialRampToValueAtTime(.0001,now+d);
+    o.connect(g).connect(lp);o.start(now);o.stop(now+d+.05);
+  });
+  hammer(now,vol);
+}
+$("#sound").onclick=()=>{
+  soundOn=!soundOn;
+  if(soundOn&&!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch{soundOn=false}}
+  if(ctx&&ctx.state==="suspended")ctx.resume();
+  $("#sound").setAttribute("aria-pressed",soundOn);$("#sound").textContent=t(soundOn?"soundOn":"soundOff");
+  if(soundOn){note(0);setTimeout(()=>note(2),160);setTimeout(()=>note(4),320)}
+};
+
+/* ---------- love button ---------- */
+let loveI=0;
+$("#love").onclick=e=>{tell("✿ Sihao vừa bấm chào cậu","","hi",600000);
+  const l=CONFIG.loveLines[loveI++%CONFIG.loveLines.length];
+  $("#loveOut").innerHTML=`${esc(l.text)}<small>${esc(l.note)}</small>`;
+  note(loveI*2);
+  const r=e.currentTarget.getBoundingClientRect();
+  for(let i=0;i<9;i++){const h=document.createElement("span");h.className="burst";h.textContent=["✿","✦","♪","☆"][i%4];
+    h.style.left=(r.left+r.width/2+(Math.random()-.5)*r.width)+"px";h.style.top=r.top+"px";
+    h.style.setProperty("--dx",(Math.random()-.5)*120+"px");h.style.setProperty("--r",(Math.random()-.5)*60+"deg");
+    document.body.appendChild(h);setTimeout(()=>h.remove(),1500)}
+};
+
+/* ---------- study corner ---------- */
+let cheerI=-1;
+const cheerList=()=>sec("cheer",CONFIG.cheers.map(c=>({a:c})));
+function showCheer(){const l=cheerList();if(cheerI>=0&&l[cheerI])$("#cheer").textContent=L(l[cheerI].a)}
+function renderCheerList(){$("#cheerList").innerHTML=cheerList().map(c=>`<li>${esc(L(c.a))}${ctl("items",c.id)}</li>`).join("")}
+$("#cheerBtn").onclick=()=>{const l=cheerList();if(!l.length)return;let n;do{n=Math.floor(Math.random()*l.length)}while(n===cheerI&&l.length>1);cheerI=n;showCheer();note(3)};
+let left=300,tick=null;
+const fmt=s=>String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+function timerLabel(){$("#timerBtn").textContent=t(tick?"pause":"start")}
+$("#timerBtn").onclick=()=>{
+  if(tick){clearInterval(tick);tick=null}else{tick=setInterval(()=>{left--;$("#timer").textContent=fmt(Math.max(left,0));
+    if(left<=0){clearInterval(tick);tick=null;left=300;timerLabel();toast(t("breakDone"));[0,2,4,5].forEach((n,i)=>setTimeout(()=>note(n),i*180))}},1000)}
+  timerLabel();
+};
+$("#timerReset").onclick=()=>{clearInterval(tick);tick=null;left=300;$("#timer").textContent=fmt(left);timerLabel()};
+let pats=store.get("pats",0);
+function patLabel(){$("#patCount").textContent=pats?t("pats")(pats):""}
+$("#bunny").onclick=e=>{pats++;store.set("pats",pats);patLabel();note(pats);e.currentTarget.classList.add("squish");setTimeout(()=>e.currentTarget.classList.remove("squish"),150)};
+
+/* ---------- data: Supabase when configured, otherwise this browser only ---------- */
+let SB=null;
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2));
+const LKEY=tb=>"nb_"+tb;
+/* ---------- tell Maia's phone (ntfy) what Sihao is doing; action only, never what he wrote ---------- */
+const PLACE_OF={diary:["nhật ký","#diary"],songs:["playlist","#songs"],updates:["dạo này","#updates"],photos:["ảnh","#photos"],places:["bản đồ","#places"],
+  memory:["kỷ niệm","#reasons"],cheer:["lời cổ vũ","#study"],fix:["điều sẽ sửa","#fixes"],letter:["lá thư","#letter"],gameid:["ID game","#game"]};
+function tell(msg,hash,key,everyMs){
+  if(!CONFIG.ntfyTopic||typeof meWho==="undefined"||meWho!=="them")return;
+  const at=store.get("pingAt",{}),now=Date.now();if(key&&at[key]&&now-at[key]<everyMs)return;
+  if(key){at[key]=now;store.set("pingAt",at)}
+  fetch("https://ntfy.sh/"+CONFIG.ntfyTopic,{method:"POST",body:msg,
+    headers:{Title:"a notebook for you",Tags:"sparkles",Click:location.href.split("#")[0]+(hash||"")}}).catch(()=>{});
+}
+function track(kind,tb,row){
+  const sc=tb==="items"?(row&&row.section):tb;if(sc==="answer")return;
+  const [name,hash]=PLACE_OF[sc]||["sổ","#"];
+  let msg;
+  if(kind==="add")msg={diary:"📝 Sihao vừa viết nhật ký",songs:`🎵 Sihao vừa thêm bài: ${row&&row.title||""}`,updates:"🌱 Sihao vừa viết vào 'dạo này'",
+    photos:"📷 Sihao vừa thêm ảnh",places:`🗺️ Sihao vừa ghim ${row&&row.name||"một nơi"} lên bản đồ`,memory:"💭 Sihao vừa thêm một kỷ niệm",
+    cheer:"📣 Sihao vừa thêm lời cổ vũ",fix:"✏️ Sihao vừa thêm vào 'điều sẽ sửa'"}[sc]||`✨ Sihao vừa thêm vào ${name}`;
+  else if(kind==="edit")msg=`✎ Sihao vừa sửa ${name}`;
+  else msg=`🗑️ Sihao vừa xoá một mục ở ${name}`;
+  tell(msg,hash,kind+":"+sc,kind==="add"&&sc!=="photos"?0:60000);
+}
+const Data={
+  async list(tb){
+    if(SB){const {data,error}=await SB.from(tb).select("*").order("created_at",{ascending:false});if(error){console.warn(error);return null}return data}
+    return store.get(LKEY(tb),[]);
+  },
+  async add(tb,row){
+    if(SB){const {error}=await SB.from(tb).insert(row);if(error){console.warn(error);toast(t("syncErr"));return false}track("add",tb,row);return true}
+    const l=store.get(LKEY(tb),[]);l.unshift({...row,id:uid(),created_at:new Date().toISOString()});
+    return store.set(LKEY(tb),l);
+  },
+  async update(tb,id,patch){
+    if(SB){const {error}=await SB.from(tb).update(patch).eq("id",id);if(error){console.warn(error);toast(t("syncErr"));return false}return true}
+    return store.set(LKEY(tb),store.get(LKEY(tb),[]).map(r=>r.id===id?{...r,...patch}:r));
+  },
+  async remove(tb,id){
+    if(SB){const {error}=await SB.from(tb).delete().eq("id",id);if(error){toast(t("syncErr"));return false}return true}
+    return store.set(LKEY(tb),store.get(LKEY(tb),[]).filter(r=>r.id!==id));
+  },
+};
+const day=r=>(r.created_at||"").slice(0,10);
+function loadScript(src){return new Promise((res,rej)=>{const el=document.createElement("script");el.src=src;el.onload=res;el.onerror=rej;document.head.appendChild(el)})}
+
+/* ---------- diary ---------- */
+let entries=[];
+function renderDiary(){
+  if(!entries.length){$("#notes").innerHTML=`<p class="sub">${t("diaryEmpty")}</p>`;return}
+  $("#notes").innerHTML=entries.map((e,i)=>`<div class="postit ${e.who==="them"?"them":""}" style="--r:${(i%3-1)*1.6}deg">
+    <p>${esc(L(e.text))}</p><div class="meta"><span>${e.who==="them"?t("whoThem"):t("whoMe")} · ${esc(day(e))}${e.example?` · <span class="example-tag">${t("example")}</span>`:""}</span>
+    ${ctl("diary",e.id)}</div></div>`).join("");
+}
+async function loadDiary(){const d=await Data.list("diary");if(d){entries=d;renderDiary()}}
+$("#diaryForm").onsubmit=async e=>{
+  e.preventDefault();const text=$("#diaryText").value.trim();if(!text)return;
+  if(await Data.add("diary",{who:$("#diaryWho").value,text})){$("#diaryText").value="";note(4);loadDiary()}
+};
+
+/* ---------- game invite ---------- */
+const gameRow=()=>sec("gameid",[])[0];
+const gameIdVal=()=>{const r=gameRow();return r?L(r.a):CONFIG.gameId};
+function renderGame(){$("#gameId").textContent=gameIdVal();const nm=(gameRow()&&gameRow().b)||CONFIG.gameName||"";$("#gameName").textContent=nm;$("#gameNameCard").textContent=nm||"Identity V";const r=gameRow();$("#gameCtl").innerHTML=ctlEdit("items",r?r.id:"new-gameid")}
+$("#invite").onclick=()=>{tell("🎮 Sihao muốn chơi Identity V với cậu!","#game","invite",600000);
+  const done=()=>{toast(t("inviteSent"));[4,2,5].forEach((n,i)=>setTimeout(()=>note(n),i*140))};
+  try{navigator.clipboard.writeText(gameIdVal()).then(done,()=>{selectId();done()})}catch{selectId();done()}
+};
+function selectId(){const r=document.createRange();r.selectNodeContents($("#gameId"));const s=getSelection();s.removeAllRanges();s.addRange(r)}
+
+/* ---------- fixes, letter, reasons, songs ---------- */
+function renderFixes(){
+  const list=sec("fix",CONFIG.fixes.map(f=>({a:f.was,b:f.now})));
+  $("#fixList").innerHTML=list.map(f=>`<li><span class="box">✓</span><span class="was">${esc(L(f.a))}${ctl("items",f.id)}</span>${f.b?`<span class="now">→ ${esc(L(f.b))}</span>`:""}</li>`).join("");
+}
+const letterRow=()=>sec("letter",[])[0];
+function renderLetter(){
+  const b=$("#letterBody"),r=letterRow();
+  if(!b.hidden)b.textContent=r?L(r.a):(CONFIG.letter[lang]||"");
+  $("#letterCtl").innerHTML=b.hidden?"":ctlEdit("items",r?r.id:"new-letter");
+}
+$("#envBtn").onclick=()=>{const b=$("#letterBody");b.hidden=!b.hidden;renderLetter();if(!b.hidden)tell("✉️ Sihao đang đọc lá thư","#letter","letter",3600000);if(!b.hidden)[0,2,4,6].forEach((n,i)=>setTimeout(()=>note(n,.12),i*220))};
+function renderReasons(){
+  const list=sec("memory",CONFIG.reasons.map(r=>({a:r})));
+  $("#reasonList").innerHTML=list.map((r,i)=>`<div class="reason" data-i="${i}" style="--r:${i%2?1.5:-1.5}deg"><div class="n">♪ ${String(i+1).padStart(2,"0")}${r.who?` · ${r.who==="them"?t("whoThem"):t("whoMe")}`:""}${ctl("items",r.id)}</div><p>${esc(L(r.a))}</p></div>`).join("");
+  observeReasons();
+}
+let io;
+function observeReasons(){
+  if(io)io.disconnect();
+  io=new IntersectionObserver(es=>es.forEach(en=>{
+    const el=en.target;
+    if(en.isIntersecting&&!el.classList.contains("lit")){
+      el.classList.add("lit");note(+el.dataset.i);
+      if(soundOn){const f=document.createElement("span");f.className="note-fly";f.textContent="♪";el.style.position="relative";f.style.right="10px";f.style.top="6px";el.appendChild(f);setTimeout(()=>f.remove(),1300)}
+    }else if(!en.isIntersecting)el.classList.remove("lit");
+  }),{threshold:.7});
+  document.querySelectorAll(".reason").forEach(el=>io.observe(el));
+}
+/* vinyl player: Spotify/YouTube embed when a song has a link, otherwise a short piano melody */
+let cur=0, playing=false, tuneTimer=null;
+let mySongs=[];
+const allSongs=()=>(SB?[]:CONFIG.songs).concat(mySongs.map(s=>({...s,mine:true})));
+let autoplayNext=false;
+function embedOf(link){
+  if(!link)return null;let m;
+  if(m=link.match(/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(track|album|playlist|episode)\/([A-Za-z0-9]+)/))
+    return {kind:"sp",src:`https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=generator`};
+  if(m=link.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([A-Za-z0-9_-]{11})/))
+    return {kind:"yt",src:`https://www.youtube-nocookie.com/embed/${m[1]}`};
+  return null;
+}
+const listenUrl=s=>/^https?:\/\//.test(s.link||"")?s.link:`https://www.youtube.com/results?search_query=${encodeURIComponent(s.title+" "+(s.artist||""))}`;
+const TUNES=[[0,2,4,2,5,4,2,0],[4,5,4,2,0,2,4,4],[2,4,5,6,5,4,2,1],[0,4,2,5,4,6,5,4]];
+function playTune(){
+  clearInterval(tuneTimer);let k=0;const tune=TUNES[cur%TUNES.length];
+  if(!soundOn){$("#sound").click()}
+  tuneTimer=setInterval(()=>{note(tune[k++%tune.length],.14)},380);
+}
+function setPlaying(p){
+  playing=p;$("#vinyl").classList.toggle("spin",p);$("#arm").classList.toggle("on",p);
+  clearInterval(tuneTimer);
+  const s=allSongs()[cur];
+  if(p&&!(s&&embedOf(s.link)))playTune();
+  renderNow();
+}
+let shownEmbed="";
+function renderNow(){
+  const list=allSongs();if(cur>=list.length)cur=0;const s=list[cur];
+  if(!s){$("#nowPlaying").innerHTML=`<p class="why">${t("noSongs")}</p>`;$("#nowEmbed").innerHTML="";shownEmbed="";return}
+  const em=embedOf(s.link);
+  const head=`<h3>${esc(s.title)}${ctl("songs",s.mine?s.id:null)}</h3><div class="artist">${esc(s.artist||"")}</div><p class="why">${esc(L(s.why))}</p>
+    <div class="ctrl">${em?"":`<button class="pbtn" id="pp" aria-label="${playing?"pause":"play"}">${playing?"❚❚":"▶"}</button>`}
+    <a href="${esc(listenUrl(s))}" target="_blank" rel="noopener">${t("listen")} ↗</a></div>`;
+  $("#nowPlaying").innerHTML=head;
+  // keep the iframe alive across re-renders so playback doesn't stop
+  if(!(em&&shownEmbed===em.src&&$("#nowEmbed").querySelector(".embed"))){
+    shownEmbed=em?em.src:"";
+    const src=em?em.src+(em.kind==="yt"&&autoplayNext?"?autoplay=1":""):"";autoplayNext=false;
+    $("#nowEmbed").innerHTML=em?`<div class="embed ${em.kind}"><iframe src="${esc(src)}" title="${esc(s.title)}" loading="lazy"
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe></div>`:"";
+  }
+  const pp=$("#pp");if(pp)pp.onclick=()=>setPlaying(!playing);
+}
+function renderSongs(){
+  const list=allSongs();
+  $("#plist").innerHTML=list.map((s,i)=>`<li><button data-song="${i}" aria-current="${i===cur}"><span class="thumb"></span>
+    <span style="min-width:0"><b>${esc(s.title)}</b><small>${esc(s.artist||"")}${s.mine?` · ${s.who==="them"?t("whoThem"):t("whoMe")}`:""}${embedOf(s.link)?" · ♫":""}</small></span></button></li>`).join("");
+  document.querySelectorAll("[data-song]").forEach(b=>b.onclick=()=>{cur=+b.dataset.song;autoplayNext=true;renderSongs();setPlaying(true);shareListen()});
+  renderNow();
+}
+async function loadSongs(){const d=await Data.list("songs");if(d){mySongs=d.slice().reverse();renderSongs()}}
+$("#songForm").onsubmit=async e=>{
+  e.preventDefault();const title=$("#songTitle").value.trim();if(!title)return;
+  const row={title,artist:$("#songArtist").value.trim(),why:$("#songWhy").value.trim(),link:$("#songLink").value.trim(),who:$("#songWho").value};
+  if(!await Data.add("songs",row))return;
+  ["#songTitle","#songArtist","#songWhy","#songLink"].forEach(s=>$(s).value="");
+  await loadSongs();cur=allSongs().length-1;renderSongs();toast(t("songAdded"));note(5);
+};
+
+/* ---------- ENFP x INTJ ---------- */
+function renderTypes(){
+  const {me,them}=CONFIG.mbti;
+  const card=(p,cls)=>`<div class="mcard ${cls}"><div class="who">${esc(p.name)}</div><div class="type">${esc(p.type)}</div><dl class="facts">${[["fUni",tx(p.uni)],["fMajor",tx(p.major)],["fFrom",tx(p.from)],["fZodiac",p.zodiac?`${p.sign||""} ${tx(p.zodiac)}`:""],["fHeight",tx(p.height)]].filter(x=>x[1]).map(([k,v])=>`<dt>${t(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl></div>`;
+  $("#duo").innerHTML=card(me,"me")+card(them,"them");
+}
+
+/* ---------- life updates ---------- */
+let myUpdates=[];
+function renderUpdates(){
+  const fromCfg=(SB?[]:CONFIG.updates).map(u=>({date:u.date||"",who:u.who||"me",tag:u.tag||"",text:tx(u.text)}));
+  const fromDb=myUpdates.map(u=>({date:day(u),who:u.who,tag:u.tag||"",text:L(u.text),id:u.id}));
+  const all=fromCfg.concat(fromDb).sort((a,b)=>b.date.localeCompare(a.date));
+  $("#updateList").innerHTML=all.map(u=>`<li class="${u.who==="them"?"them":"me"}"><div class="when">${esc(u.date)}<span class="by">${u.who==="them"?t("whoThem"):t("whoMe")}</span>${u.tag?`<span class="tag">${esc(u.tag)}</span>`:""}${ctl("updates",u.id)}</div><p class="what">${esc(u.text)}</p></li>`).join("");
+}
+async function loadUpdates(){const d=await Data.list("updates");if(d){myUpdates=d;renderUpdates()}}
+$("#updForm").onsubmit=async e=>{
+  e.preventDefault();const text=$("#updText").value.trim();if(!text)return;
+  if(await Data.add("updates",{who:$("#updWho").value,text,tag:$("#updTag").value.trim()})){$("#updText").value="";$("#updTag").value="";note(2);loadUpdates()}
+};
+
+/* ---------- polaroids (CONFIG photos + ones added with the button) ---------- */
+let myPhotos=[];
+function renderPhotos(){
+  const cfg=CONFIG.photos.map(p=>({src:p.src,cap:tx(p.caption),when:p.when||""}));
+  const mine=myPhotos.map(p=>({src:p.src,cap:p.cap,when:day(p),id:p.id,path:p.path}));
+  const all=cfg.concat(mine);
+  const card=(p,i)=>`<figure class="polaroid-card" style="--r:${[-3,2,-1.5,3,-2.5,1][i%6]}deg;margin:0">
+    ${p.src?`<img class="ph" src="${esc(p.src)}" alt="${esc(p.cap||"")}" loading="lazy">`:`<div class="empty">${t("photoHint")}</div>`}
+    <figcaption class="cap">${esc(p.cap||"")}</figcaption>
+    <div class="pmeta"><span>${esc(p.when||"")}</span>${ctl("photos",p.id)}</div></figure>`;
+  $("#pwall").innerHTML=(all.length?all:[{},{},{}]).map(card).join("");
+}
+async function loadPhotos(){const d=await Data.list("photos");if(d){myPhotos=d;renderPhotos()}}
+function shrink(file){return new Promise((res,rej)=>{const url=URL.createObjectURL(file),img=new Image();
+  img.onload=()=>{const sc=Math.min(1,1200/Math.max(img.width,img.height)),c=document.createElement("canvas");
+    c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    URL.revokeObjectURL(url);res(c)};
+  img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url})}
+$("#photoFile").onchange=async e=>{
+  const files=[...e.target.files];e.target.value="";const cap=$("#photoCap").value.trim();
+  for(const f of files){
+    let c;try{c=await shrink(f)}catch{toast(t("photoErr"));continue}
+    if(SB){
+      const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.82)),path=uid()+".jpg";
+      const up=await SB.storage.from("photos").upload(path,blob,{contentType:"image/jpeg"});
+      if(up.error){console.warn(up.error);toast(t("syncErr"));break}
+      const src=SB.storage.from("photos").getPublicUrl(path).data.publicUrl;
+      if(!await Data.add("photos",{src,path,cap}))break;
+    }else if(!await Data.add("photos",{src:c.toDataURL("image/jpeg",.78),cap})){toast(t("photoFull"));break}
+  }
+  $("#photoCap").value="";loadPhotos();note(3);
+};
+
+/* ---------- shared editable content (items table) ---------- */
+let items={},itemsReady=false;
+function L(v){if(v==null)return"";if(typeof v==="object")return tx(v);if(typeof v==="string"&&v[0]==="{"){try{return tx(JSON.parse(v))}catch{}}return String(v)}
+function isI18n(v){if(v&&typeof v==="object")return true;if(typeof v==="string"&&v[0]==="{"){try{const o=JSON.parse(v);return !!o&&typeof o==="object"}catch{}}return false}
+function setL(old,val){if(!isI18n(old))return val;const o=typeof old==="object"?{...old}:JSON.parse(old);o[lang]=val;return JSON.stringify(o)}
+function sec(name,fallback){const own=items[name]||[];if(SB&&itemsReady)return own;return own.length?own:fallback}
+const ctlEdit=(tb,id)=>id?`<span class="ctl"><button type="button" data-edit="${tb}|${esc(id)}">✎ ${t("editH")}</button></span>`:"";
+const ctl=(tb,id)=>id?`<span class="ctl"><button type="button" data-edit="${tb}|${esc(id)}">✎ ${t("editH")}</button><button type="button" data-remove="${tb}|${esc(id)}">× ${t("del")}</button></span>`:"";
+const foldCheers=()=>{const d=$("#cheerList").closest("details");if(d)d.open=false};
+function renderItemsAll(){renderAsk();renderFixes();renderReasons();renderTypes();renderCheerList();showCheer();renderGame();renderLetter()}
+async function loadItems(){const d=await Data.list("items");if(!d)return;items={};d.slice().reverse().forEach(r=>(items[r.section]=items[r.section]||[]).push(r));itemsReady=true;renderItemsAll()}
+const RELOAD={places:()=>loadPlaces(),diary:()=>loadDiary(),songs:()=>loadSongs(),updates:()=>loadUpdates(),photos:()=>loadPhotos(),items:()=>loadItems()};
+const FIELDS={diary:[["text","fText",1]],songs:[["title","fTitle"],["artist","fArtist"],["why","fWhy",1],["link","fLink"]],
+  updates:[["text","fText",1],["tag","fTag"]],photos:[["cap","fCap"]],places:[["name","fCity"],["visited","fDate"],["note","fNote",1]],
+  items:r=>({fix:[["a","fWas",1],["b","fNow",1]],letter:[["a","fText",1]],gameid:[["a","fId"],["b","fName"]]}[r.section]||[["a","fText",1]])};
+const REQUIRED=new Set(["text","title","a","name"]);
+function findRow(tb,id){
+  if(id.startsWith("new-")){const sc=id.slice(4);return {section:sc,a:sc==="gameid"?CONFIG.gameId:JSON.stringify(CONFIG.letter),b:sc==="gameid"?CONFIG.gameName:null,virtual:true}}
+  const pool={places:myPlaces,diary:entries,songs:mySongs,updates:myUpdates,photos:myPhotos,items:Object.values(items).flat()}[tb]||[];
+  return pool.find(r=>r.id===id);
+}
+let editing=null;
+function openEdit(tb,id){
+  const r=findRow(tb,id);if(!r)return;
+  const f=typeof FIELDS[tb]==="function"?FIELDS[tb](r):FIELDS[tb];
+  editing={tb,id,r,f};
+  $("#editFields").innerHTML=f.map(([k,lab,multi],i)=>`<label for="ef${i}">${t(lab)}${multi
+    ?`<textarea class="field${k==="why"?" tall":""}" id="ef${i}" maxlength="${k==="why"?5000:k==="text"?(tb==="updates"?300:2000):(k==="a"&&r.section==="letter")?3000:400}">${esc(L(r[k]))}</textarea>`
+    :`<input class="field" id="ef${i}" maxlength="300" value="${esc(L(r[k]))}">`}</label>`).join("")
+    +(tb==="places"?`<div class="ef-photo">
+        <img id="efPic" alt="" ${r.src?`src="${esc(r.src)}"`:"hidden"}>
+        <div class="row">
+          <input type="file" id="efFile" accept="image/*" class="sr-file">
+          <label class="btn" for="efFile" id="efFileLbl">${t(r.src?"placeChangePhoto":"placePhoto")}</label>
+          <button type="button" class="btn" id="efRemovePic" ${r.src?"":"hidden"}>${t("placeRemovePhoto")}</button>
+        </div></div>`:"");
+  editing.newFile=null;editing.dropPhoto=false;
+  if(tb==="places"){
+    $("#efFile").onchange=e=>{const f=e.target.files[0];if(!f)return;editing.newFile=f;editing.dropPhoto=false;
+      const pic=$("#efPic");pic.src=URL.createObjectURL(f);pic.hidden=false;$("#efRemovePic").hidden=false;$("#efFileLbl").textContent=t("placeChangePhoto")};
+    $("#efRemovePic").onclick=()=>{editing.newFile=null;editing.dropPhoto=true;$("#efFile").value="";$("#efPic").hidden=true;$("#efRemovePic").hidden=true;$("#efFileLbl").textContent=t("placePhoto")};
+  }
+  $("#editModal").hidden=false;$("#ef0").focus();
+}
+function closeEdit(){$("#editModal").hidden=true;editing=null}
+$("#editCancel").onclick=closeEdit;
+$("#editModal").addEventListener("click",e=>{if(e.target.id==="editModal")closeEdit()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#editModal").hidden)closeEdit()});
+$("#editForm").onsubmit=async e=>{
+  e.preventDefault();if(!editing)return;const {tb,id,r,f}=editing;const patch={};
+  for(let i=0;i<f.length;i++){const k=f[i][0],v=$("#ef"+i).value.trim();if(REQUIRED.has(k)&&!v){toast(t("emptyErr"));return}patch[k]=setL(r[k],v)}
+  const oldPath=tb==="places"?r.path:null;let photoChanged=false;
+  if(tb==="places"&&(editing.newFile||editing.dropPhoto)){
+    photoChanged=true;patch.src=null;patch.path=null;
+    if(editing.newFile){
+      let c;try{c=await shrink(editing.newFile)}catch{toast(t("photoErr"));return}
+      if(SB){const blob=await new Promise(res=>c.toBlob(res,"image/jpeg",.82)),path="places/"+uid()+".jpg";
+        const up=await SB.storage.from("photos").upload(path,blob,{contentType:"image/jpeg"});
+        if(up.error){console.warn(up.error);toast(t("syncErr"));return}
+        patch.src=SB.storage.from("photos").getPublicUrl(path).data.publicUrl;patch.path=path;
+      }else patch.src=c.toDataURL("image/jpeg",.78);
+    }
+  }
+  const ok=r.virtual?await Data.add("items",{section:r.section,a:patch.a,b:patch.b||null}):await Data.update(tb,id,patch);
+  if(ok&&photoChanged&&SB&&oldPath)SB.storage.from("photos").remove([oldPath]);
+  if(ok){closeEdit();note(4);if(SB)track(r.virtual?"add":"edit",tb,r);if(r.section==="cheer")foldCheers();RELOAD[tb]()}
+};
+async function askRemove(tb,id){
+  if(!confirm(t("confirmDel")))return;const r=findRow(tb,id);
+  if(await Data.remove(tb,id)){if(SB)track("del",tb,r);
+    if((tb==="photos"||tb==="places")&&SB&&r&&r.path)await SB.storage.from("photos").remove([r.path]);
+    if(tb==="songs"){cur=0;setPlaying(false)}
+    RELOAD[tb]();
+  }
+}
+document.addEventListener("click",e=>{
+  const ed=e.target.closest("[data-edit]"),rm=e.target.closest("[data-remove]");
+  if(ed){const [tb,id]=ed.dataset.edit.split("|");openEdit(tb,id)}
+  if(rm){const [tb,id]=rm.dataset.remove.split("|");askRemove(tb,id)}
+});
+document.addEventListener("submit",async e=>{
+  const f=e.target.closest("form[data-add]");if(!f)return;e.preventDefault();
+  const a=f.elements.a.value.trim();if(!a)return;
+  const row={section:f.elements.target?f.elements.target.value:f.dataset.add,a};
+  if(f.elements.b&&f.elements.b.value.trim())row.b=f.elements.b.value.trim();
+  if(f.elements.who)row.who=f.elements.who.value;
+  if(await Data.add("items",row)){f.elements.a.value="";if(f.elements.b)f.elements.b.value="";note(4);if(row.section==="cheer")foldCheers();loadItems()}
+});
+
+/* ---------- listen together (Supabase realtime broadcast + presence) ---------- */
+let listenCh=null,meWho=store.get("meWho","them");
+$("#meSel").value=meWho;
+$("#meSel").onchange=e=>{meWho=e.target.value;store.set("meWho",meWho);if(listenCh)listenCh.track({who:meWho})};
+const whoName=w=>w==="them"?t("whoThem"):t("whoMe");
+function initListen(){
+  if(!SB)return;
+  listenCh=SB.channel("listen-together",{config:{broadcast:{self:false},presence:{key:uid()}}});
+  listenCh.on("broadcast",{event:"play"},({payload})=>showTogether(payload))
+    .on("presence",{event:"sync"},renderPresence)
+    .subscribe(st=>{if(st==="SUBSCRIBED")listenCh.track({who:meWho})});
+}
+function shareListen(){const s=allSongs()[cur];if(s)tell(`🎧 Sihao đang nghe: ${s.title}`,"#songs","play:"+s.title,180000);if(!listenCh||!s)return;listenCh.send({type:"broadcast",event:"play",payload:{who:meWho,id:s.id||null,title:s.title,i:cur}})}
+function showTogether(p){
+  const el=$("#together");el.hidden=false;
+  el.innerHTML=`<span>♪ ${esc(whoName(p.who))} ${t("isPlaying")} <b>${esc(p.title)}</b></span><button class="btn pink" type="button" id="joinBtn">${t("joinListen")}</button>`;
+  note(5);
+  $("#joinBtn").onclick=()=>{
+    const list=allSongs();let i=p.id?list.findIndex(x=>x.id===p.id):-1;
+    if(i<0)i=list.findIndex(x=>x.title===p.title);if(i<0)i=p.i||0;
+    cur=Math.max(0,Math.min(i,list.length-1));autoplayNext=true;renderSongs();setPlaying(true);el.hidden=true;
+  };
+}
+function renderPresence(){
+  if(!listenCh)return;
+  const others=Object.values(listenCh.presenceState()).flat().filter(x=>x.who!==meWho);
+  $("#presence").textContent=others.length?`● ${whoName(others[0].who)} ${t("isHere")}`:"";
+}
+
+/* ---------- places: Leaflet map + pins ---------- */
+let myPlaces=[],map=null,pinLayer=null,tempPin=null,pickLatLng=null;
+const HOMES=[{who:"me",lat:21.0285,lng:105.8542,key:"homeMe"},{who:"them",lat:31.2989,lng:120.5853,key:"homeThem"}];
+function pinIcon(cls,emoji){return L_ ? L_.divIcon({className:"",html:`<div class="pin ${cls}"><span>${emoji}</span></div>`,iconSize:[26,26],iconAnchor:[13,26],popupAnchor:[0,-24]}) : null}
+const L_=window.LeafletLib; // Leaflet, saved before our own L() text helper replaced window.L
+function initMap(){
+  if(!L_||map)return;
+  map=L_.map("map",{scrollWheelZoom:false,worldCopyJump:true}).setView([25,112],3);
+  L_.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
+  pinLayer=L_.layerGroup().addTo(map);renderPlaces();fitPins();
+  new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){fitPins();o.disconnect()}},{threshold:.3}).observe($("#map"));
+  map.on("click",e=>{
+    pickLatLng=e.latlng;
+    if(tempPin)tempPin.setLatLng(e.latlng);else tempPin=L_.marker(e.latlng,{icon:pinIcon("temp","✦")}).addTo(map);
+    $("#mapHint").textContent=t("pinPlaced");$("#plName").focus();
+  });
+}
+function renderPlaces(){
+  if(map){
+    pinLayer.clearLayers();
+    HOMES.forEach(h=>L_.marker([h.lat,h.lng],{icon:pinIcon("home","⌂")}).bindPopup(`<b>${esc(t(h.key))}</b>`).addTo(pinLayer));
+    myPlaces.forEach(p=>{
+      L_.marker([p.lat,p.lng],{icon:pinIcon("","♡")})
+        .bindPopup(`${p.src?`<img src="${esc(p.src)}" alt="">`:""}<b>${esc(p.name)}</b>${p.visited?`<br>${esc(p.visited)}`:""}${p.note?`<br><small>${esc(p.note)}</small>`:""}`)
+        .addTo(pinLayer);
+    });
+  }
+  $("#placeList").innerHTML=myPlaces.map((p,i)=>`<figure class="polaroid-card place-card" data-fly="${esc(p.id)}" style="--r:${[-2,2,-1,3,-3,1][i%6]}deg;margin:0">
+    ${p.src?`<img class="ph" src="${esc(p.src)}" alt="${esc(p.name)}" loading="lazy">`:`<div class="empty">📍 ${esc(p.name)}</div>`}
+    <div class="city">${esc(p.name)}</div><figcaption class="cap">${esc(p.note||"")}</figcaption>
+    <div class="pmeta"><span>${esc(p.visited||"")}</span>${ctl("places",p.id)}</div></figure>`).join("");
+}
+function fitPins(){
+  if(!map)return;map.invalidateSize();const pts=myPlaces.map(p=>[p.lat,p.lng]).concat(HOMES.map(h=>[h.lat,h.lng]));
+  if(pts.length)map.fitBounds(pts,{padding:[56,56],maxZoom:5});
+}
+let firstFit=true;
+async function loadPlaces(){const d=await Data.list("places");if(d){myPlaces=d.slice().reverse();renderPlaces();if(firstFit){fitPins();firstFit=false}}}
+$("#placeList").addEventListener("click",e=>{
+  if(e.target.closest(".ctl"))return;
+  const c=e.target.closest("[data-fly]");if(!c||!map)return;const p=myPlaces.find(x=>x.id===c.dataset.fly);if(!p)return;
+  map.flyTo([p.lat,p.lng],8,{duration:1.2});$("#map").scrollIntoView({behavior:"smooth",block:"center"});
+});
+$("#plPhoto").onchange=e=>{$("#plPhotoLbl").textContent=t(e.target.files.length?"photoPicked":"placePhoto")};
+async function geocode(q){
+  const url=`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}&accept-language=${lang==="zh"?"zh":lang}`;
+  const r=await fetch(url,{headers:{Accept:"application/json"}});if(!r.ok)return null;
+  const j=await r.json();return j[0]?{lat:+j[0].lat,lng:+j[0].lon}:null;
+}
+$("#placeForm").onsubmit=async e=>{
+  e.preventDefault();const name=$("#plName").value.trim();if(!name)return;
+  const btn=$("#plSubmit");btn.disabled=true;btn.textContent=t("searching");
+  try{
+    let at=pickLatLng?{lat:pickLatLng.lat,lng:pickLatLng.lng}:null;
+    if(!at){try{at=await geocode(name)}catch{at=null}}
+    if(!at){toast(t("placeNotFound"));return}
+    const row={name,lat:+at.lat.toFixed(5),lng:+(((at.lng+540)%360)-180).toFixed(5),visited:$("#plDate").value.trim(),note:$("#plNote").value.trim(),who:meWho};
+    const file=$("#plPhoto").files[0];
+    if(file){
+      let c;try{c=await shrink(file)}catch{toast(t("photoErr"))}
+      if(c){
+        if(SB){const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.82)),path="places/"+uid()+".jpg";
+          const up=await SB.storage.from("photos").upload(path,blob,{contentType:"image/jpeg"});
+          if(up.error){console.warn(up.error);toast(t("syncErr"));return}
+          row.src=SB.storage.from("photos").getPublicUrl(path).data.publicUrl;row.path=path;
+        }else row.src=c.toDataURL("image/jpeg",.78);
+      }
+    }
+    if(!await Data.add("places",row))return;
+    ["#plName","#plDate","#plNote"].forEach(x=>$(x).value="");$("#plPhoto").value="";$("#plPhotoLbl").textContent=t("placePhoto");
+    if(tempPin){tempPin.remove();tempPin=null}pickLatLng=null;$("#mapHint").textContent=t("mapHint");
+    await loadPlaces();if(map)map.flyTo([row.lat,row.lng],7,{duration:1.2});toast(t("placeAdded"));note(6);
+  }finally{btn.disabled=false;btn.textContent=t("addPlace")}
+};
+
+/* ---------- biu: hearts fly from her finger to him; he gets knocked back ---------- */
+const NS="http://www.w3.org/2000/svg";
+let biuBusy=false,lastBiu=0;
+function biu(){
+  if(biuBusy)return;biuBusy=true;lastBiu=Date.now();$("#biuHint").classList.add("off");setTimeout(()=>$("#biuHint").classList.remove("off"),2600);
+  const boy=$("#biuBoy"),hearts=$("#biuHearts"),petals=$("#petals"),txt=$("#biuText");
+  hearts.innerHTML="";petals.innerHTML="";boy.getAnimations().forEach(a=>a.cancel());
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){boy.style.transform="none";biuBusy=false;return}
+  boy.style.transform="rotate(-8deg)";
+  txt.animate([{opacity:0,transform:"translate(0,10px) scale(.7)"},{opacity:1,transform:"translate(0,0) scale(1.1)",offset:.3},{opacity:1,transform:"none",offset:.8},{opacity:0,transform:"translate(0,-12px)"}],{duration:1700,easing:"ease-out"});
+  note(4);
+  const from={x:372,y:124},to={x:585,y:150};
+  [0,1,2].forEach(i=>{
+    const u=document.createElementNS(NS,"use");u.setAttribute("href","#hrt");hearts.appendChild(u);
+    const lift=-50-18*i;
+    const a=u.animate([
+      {transform:`translate(${from.x}px,${from.y}px) scale(.7)`,opacity:0},
+      {transform:`translate(${(from.x+to.x)/2}px,${(from.y+to.y)/2+lift}px) scale(${1.9-i*.25})`,opacity:1,offset:.5},
+      {transform:`translate(${to.x}px,${to.y}px) scale(1.1)`,opacity:1}],
+      {duration:700,delay:i*170,easing:"cubic-bezier(.35,.1,.45,1)",fill:"both"});
+    a.onfinish=()=>{u.remove();if(i===0)onHit()};
+  });
+  function onHit(){
+    note(7);setTimeout(()=>note(9),120);
+    boy.animate([{transform:"rotate(-8deg)"},{transform:"rotate(6deg)",offset:.3},{transform:"rotate(-2deg)",offset:.6},{transform:"rotate(0deg)"}],{duration:950,easing:"ease-out",fill:"forwards"});
+    const pop=document.createElementNS(NS,"use");pop.setAttribute("href","#hrt");hearts.appendChild(pop);
+    pop.animate([{transform:"translate(618px,52px) scale(.4)",opacity:0},{transform:"translate(618px,40px) scale(2.2)",opacity:1,offset:.4},{transform:"translate(618px,44px) scale(1.8)",opacity:1}],{duration:700,fill:"forwards"});
+    for(let k=0;k<20;k++){
+      const e=document.createElementNS(NS,"ellipse");e.setAttribute("rx",6);e.setAttribute("ry",3.5);
+      e.setAttribute("fill",["#f6b7c7","#f3c6d2","#e9a0b6","#fbd7e2","#f5c2a8"][k%5]);petals.appendChild(e);
+      const ang=-Math.PI*(.1+.8*Math.random()),dist=70+110*Math.random(),x=590,y=140;
+      e.animate([{transform:`translate(${x}px,${y}px) rotate(0)`,opacity:1},
+        {transform:`translate(${x+Math.cos(ang)*dist}px,${y+Math.sin(ang)*dist+60}px) rotate(${360*Math.random()}deg)`,opacity:0}],
+        {duration:1500+700*Math.random(),easing:"ease-out",fill:"forwards"});
+    }
+    setTimeout(()=>{biuBusy=false},1200);
+  }
+}
+$("#biuStage").onclick=()=>{tell("💘 Sihao vừa bấm bắn tim","#biu","biu",600000);biuBusy=false;biu()};
+new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting&&Date.now()-lastBiu>4000)biu()}),{threshold:.6}).observe($("#biuStage"));
+
+document.addEventListener("input",e=>{const el=e.target;if(el.id==="songWhy"||(el.classList&&el.classList.contains("tall"))){el.style.height="auto";el.style.height=Math.min(el.scrollHeight+4,el.closest("#editForm")?Math.max(200,innerHeight*.45):520)+"px"}});
+
+/* ---------- two-choice switches (keep the <select> for forms, show buttons) ---------- */
+function segs(){
+  document.querySelectorAll("select").forEach(sel=>{
+    let seg=sel.nextElementSibling;
+    if(!seg||!seg.classList.contains("seg")){
+      seg=document.createElement("div");seg.className="seg";seg.setAttribute("role","radiogroup");
+      const lab=sel.id&&document.querySelector(`label[for="${sel.id}"]`);if(lab)seg.setAttribute("aria-label",lab.textContent);
+      sel.after(seg);sel.classList.add("seg-src");sel.tabIndex=-1;
+      seg.addEventListener("click",e=>{const b=e.target.closest("button");if(!b||sel.value===b.dataset.v)return;sel.value=b.dataset.v;sel.dispatchEvent(new Event("change",{bubbles:true}))});
+      sel.addEventListener("change",()=>paintSeg(sel,seg));
+    }
+    paintSeg(sel,seg);
+  });
+}
+function paintSeg(sel,seg){seg.innerHTML=[...sel.options].map(o=>`<button type="button" role="radio" aria-checked="${o.value===sel.value}" data-v="${esc(o.value)}">${esc(o.textContent)}</button>`).join("")}
+
+/* ---------- the question: Yes celebrates, No runs away ---------- */
+const NO_LINES={
+  vi:["Không","Chắc chưa?","Nghĩ lại đi mà","Hông bấm được đâu","Năn nỉ đó 🥺","Bấm Đồng ý đi 💗","Sai nút rồi!"],
+  en:["No","Are you sure?","Think again!","Can't catch me","Pretty please 🥺","Press Yes instead 💗","Wrong button!"],
+  zh:["不要","确定吗？","再想想嘛","抓不到我","求求你 🥺","点「好呀」嘛 💗","按错啦！"]};
+let noTries=0;
+function dodge(e){tell("😆 Sihao đang cố bấm No","#ask","no",3600000);
+  if(e){e.preventDefault();e.stopPropagation()}
+  const box=$("#askBox"),no=$("#askNo"),B=box.getBoundingClientRect();
+  if(!no.classList.contains("loose")){const r=no.getBoundingClientRect();no.style.left=(r.left-B.left)+"px";no.style.top=(r.top-B.top)+"px";no.classList.add("loose");no.offsetWidth}
+  noTries++;
+  const lines=NO_LINES[lang]||NO_LINES.en;no.textContent=lines[noTries%lines.length];
+  const w=no.offsetWidth,h=no.offsetHeight,pad=8;
+  const yes=$("#askYes").getBoundingClientRect();
+  let x,y,tries=0;
+  do{ // land somewhere inside the card, not on top of the Yes button
+    x=pad+Math.random()*Math.max(1,B.width-w-pad*2);y=pad+Math.random()*Math.max(1,B.height-h-pad*2);tries++;
+  }while(tries<20&&x+B.left<yes.right+10&&x+B.left+w>yes.left-10&&y+B.top<yes.bottom+10&&y+B.top+h>yes.top-10);
+  no.style.left=x+"px";no.style.top=y+"px";
+  no.style.setProperty("--shrink",Math.max(1-noTries*.06,.6));no.style.setProperty("--tilt",((Math.random()-.5)*16).toFixed(1)+"deg");
+  no.animate([{translate:"0 0"},{translate:"-6px 0"},{translate:"6px 0"},{translate:"-4px 0"},{translate:"0 0"}],{duration:320,delay:260});
+  $("#askYes").style.setProperty("--grow",Math.min(1+noTries*.08,1.8));
+  note(noTries%5);
+}
+const askNo=$("#askNo");
+askNo.addEventListener("pointerenter",e=>{if(e.pointerType==="mouse")dodge()});
+askNo.addEventListener("pointerdown",dodge);
+askNo.addEventListener("click",dodge);
+askNo.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" ")dodge(e)});
+$("#askYes").onclick=async e=>{
+  const r=e.currentTarget.getBoundingClientRect();
+  for(let i=0;i<24;i++){const h=document.createElement("span");h.className="burst";h.textContent=["💗","♡","🌹","✿"][i%4];
+    h.style.left=(r.left+r.width/2+(Math.random()-.5)*r.width*2)+"px";h.style.top=r.top+"px";
+    h.style.setProperty("--dx",(Math.random()-.5)*260+"px");h.style.setProperty("--r",(Math.random()-.5)*80+"deg");
+    document.body.appendChild(h);setTimeout(()=>h.remove(),1500)}
+  [0,2,4,5,7,9].forEach((n,i)=>setTimeout(()=>note(n),i*140));
+  $("#askBtns").hidden=true;const d=$("#askDone");d.hidden=false;d.textContent=t("askDone");setHappyPic();
+  if(await Data.add("items",{section:"answer",a:"yes",who:meWho})){loadItems();if(meWho==="them")pingMaia()}
+};
+// push a phone notification to Maia through ntfy.sh (best effort; the in-page popup still works without it)
+function pingMaia(){
+  if(!CONFIG.ntfyTopic)return;
+  fetch("https://ntfy.sh/"+CONFIG.ntfyTopic,{method:"POST",body:"Sihao said YES 💗 Sihao đồng ý rồi! Sihao 答应啦！",
+    headers:{Title:"a notebook for you",Tags:"heart,rose",Priority:"high",Click:location.href.split("#")[0]+"#ask"}}).catch(()=>{});
+}
+function setHappyPic(){const c=$(".ask-cat");if(!c.dataset.happy){c.dataset.happy=1;c.onerror=()=>{c.onerror=null;c.src="images/cat-rose.jpg"};c.src="images/cats-yes.jpg"}}
+function renderAsk(){
+  const yes=sec("answer",[]).filter(r=>r.who==="them"),last=yes[yes.length-1];
+  $("#askSaid").textContent=last?`${whoName("them")} ${t("saidYes")} · ${day(last)}`:"";
+  if(last){$("#askBtns").hidden=true;$("#askDone").hidden=false;setHappyPic()}
+  if(!$("#askDone").hidden)$("#askDone").textContent=t("askDone");
+  const no=$("#askNo");if(noTries)no.textContent=(NO_LINES[lang]||NO_LINES.en)[noTries%7];
+  notifyMaia(last);
+}
+// Maia's browser ("I'm: Maia") gets a big popup the first time it sees Sihao's yes
+function notifyMaia(last){
+  if(!last||meWho!=="me")return;
+  const seen=store.get("seenYes",[]);if(seen.includes(last.id))return;
+  $("#yesTitle").textContent=t("yesTitle");
+  $("#yesWhen").textContent=new Date(last.created_at).toLocaleString(lang==="zh"?"zh-CN":lang==="vi"?"vi-VN":"en-US",{dateStyle:"medium",timeStyle:"short"});
+  $("#yesModal").hidden=false;document.title="💗 "+t("yesTitle").replace("💗 ","");
+  [0,2,4,5,7,9].forEach((n,k)=>setTimeout(()=>note(n),k*150));
+  const r=$(".yes-card").getBoundingClientRect();
+  for(let k=0;k<30;k++){const h=document.createElement("span");h.className="burst";h.textContent=["💗","♡","🌹","✿"][k%4];h.style.zIndex=80;
+    h.style.left=(r.left+Math.random()*r.width)+"px";h.style.top=(r.top+r.height*.4)+"px";
+    h.style.setProperty("--dx",(Math.random()-.5)*300+"px");h.style.setProperty("--r",(Math.random()-.5)*90+"deg");
+    document.body.appendChild(h);setTimeout(()=>h.remove(),1500)}
+  $("#yesClose").onclick=()=>{store.set("seenYes",seen.concat(last.id));$("#yesModal").hidden=true;document.title="a notebook for you"};
+}
+
+/* ---------- lock screen ---------- */
+// only hashes of the accepted answers live here, never the answer itself
+const GATE_OK=["a6742dbb89ab07051dea3818d761d6ce64aa23558eb852917573f59e63a20903","325d2cfa1f9ef95e493377805edbddba80f37229756ce39fb967a9bc05c62086"];
+const gateNorm=x=>x.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]/g,"");
+async function gateHash(x){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("notebook:"+gateNorm(x)));return [...new Uint8Array(b)].map(v=>v.toString(16).padStart(2,"0")).join("")}
+let hintsShown=0;
+function renderGate(){
+  document.querySelectorAll("[data-gl]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.gl===lang));
+  const hs=t("gateHints").split("|");$("#gateHints").innerHTML=hs.slice(0,hintsShown).map(h=>`<li>${esc(h)}</li>`).join("");
+}
+document.querySelectorAll("[data-gl]").forEach(b=>b.onclick=()=>setLang(b.dataset.gl));
+$("#gateHint").onclick=()=>{const n=t("gateHints").split("|").length;if(hintsShown>=n){$("#gateMsg").textContent=t("gateNoMore");return}hintsShown++;renderGate();note(hintsShown+1)};
+$("#gateForm").onsubmit=async e=>{
+  e.preventDefault();const v=$("#gateIn").value;if(!v.trim())return;
+  let ok=false;try{ok=GATE_OK.includes(await gateHash(v))}catch{ok=false}
+  if(!ok){const c=$("#gateForm");c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake");$("#gateMsg").textContent=t("gateWrong");note(0);return}
+  $("#gateMsg").textContent=t("gateRight");
+  try{localStorage.setItem("nb_unlocked","1")}catch{}
+  [0,2,4,7].forEach((n,i)=>setTimeout(()=>note(n),i*140));
+  tell("🔓 Sihao vừa mở khoá cuốn sổ","","unlock",3600000);
+  const g=$("#gate");g.classList.add("opening");setTimeout(()=>{g.hidden=true;document.documentElement.classList.remove("locked");if(map)map.invalidateSize()},600);
+};
+if(!$("#gate").hidden)setTimeout(()=>$("#gateIn").focus(),300);
+
+/* ---------- language ---------- */
+function setLang(l){
+  lang=l;store.set("lang",l);document.documentElement.lang=l;
+  document.querySelectorAll("[data-i18n]").forEach(el=>el.textContent=t(el.dataset.i18n));
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>el.innerHTML=t(el.dataset.i18nHtml));
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>el.placeholder=t(el.dataset.i18nPh));
+  document.querySelectorAll(".langs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===l));
+  $("#sound").textContent=t(soundOn?"soundOn":"soundOff");
+  timerLabel();patLabel();showCheer();renderCheerList();renderGame();renderDiary();renderFixes();renderReasons();renderSongs();renderUpdates();renderPhotos();renderTypes();
+  renderLetter();renderPresence();renderPlaces();segs();renderAsk();renderGate();
+}
+document.querySelectorAll(".langs button").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+if(!T[lang])lang="en";
+setLang(lang);
+
+
+/* ---------- start: connect Supabase if configured, then load shared data ---------- */
+(async()=>{
+  const cfg=CONFIG.supabase||{};
+  if(cfg.url&&cfg.anonKey){
+    try{
+      await loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js");
+      SB=window.supabase.createClient(cfg.url,cfg.anonKey);
+      $("#syncNote").dataset.i18n="syncOn";$("#syncNote").textContent=t("syncOn");
+      SB.channel("notebook")
+        .on("postgres_changes",{event:"*",schema:"public",table:"diary"},loadDiary)
+        .on("postgres_changes",{event:"*",schema:"public",table:"songs"},loadSongs)
+        .on("postgres_changes",{event:"*",schema:"public",table:"photos"},loadPhotos)
+        .on("postgres_changes",{event:"*",schema:"public",table:"updates"},loadUpdates)
+        .on("postgres_changes",{event:"*",schema:"public",table:"items"},loadItems)
+        .on("postgres_changes",{event:"*",schema:"public",table:"places"},loadPlaces)
+        .subscribe();
+    }catch(err){console.warn("Supabase unavailable, using this browser only",err);SB=null}
+  }
+  initListen();initMap();if($("#gate").hidden)tell("👀 Sihao đang xem trang","","visit",1800000);
+  await Promise.all([loadPlaces(),loadDiary(),loadSongs(),loadPhotos(),loadUpdates(),loadItems()]);
+})();
+</script>
+
+</html>
