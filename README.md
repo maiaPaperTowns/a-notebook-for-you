@@ -18,7 +18,9 @@ Plain HTML, CSS and JavaScript in one `index.html`, hosted on GitHub Pages. Shar
 | 🎮 Game | game ID card with a one-tap "copy & invite" button |
 | ✏️ Notes to self | a short list of things to do better |
 | ✉️ Letter | an envelope that opens |
-| 🎵 Memories | each line plays a piano note as you scroll |
+| 💌 Open when… | little letters for tired days, after exams, sleepless nights and bad days |
+| 🎵 Little things | small remembered details; each line plays a piano note as you scroll |
+| 🌙 Peace | a quiet night-sky corner with a sleepy bunny, goodnight wishes and soft piano |
 | 💫 Quick facts | two small profile cards |
 | 💘 Biu | a scroll-triggered animation |
 | 🌹 Question | a yes / no question where "no" runs away |
@@ -43,5 +45,5 @@ The publishable key is meant to be public; access is controlled by the row-level
 
 ## Notes
 
-- The lock screen is a playful gate, not real security: the site is static. Only a hash of the answer is stored.
+- The lock screen asks again on every new visit. It is a playful gate, not real security: the site is static. Only a hash of the answer is stored.
 - Images in `images/` are only used for this page.

@@ -398,6 +398,45 @@ html[lang="zh"] .gate-card h1{font-family:var(--f-zh);font-weight:400}
 .gate.opening{animation:gateOut .6s ease forwards}
 @keyframes gateOut{to{opacity:0;transform:scale(1.04)}}
 
+/* ---- open when... ---- */
+.ow-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:18px}
+.ow-card{display:grid;gap:6px;justify-items:center;min-width:0}
+.ow-env{position:relative;width:100%;aspect-ratio:16/10;border:0;border-radius:10px;cursor:pointer;overflow:hidden;
+  background:var(--env,#f3c6d2);box-shadow:0 6px 14px var(--shadow);transform:rotate(var(--r,0deg));transition:transform .2s}
+.ow-env:hover{transform:rotate(0) translateY(-3px)}
+.ow-env::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom right,transparent 49.4%,rgba(0,0,0,.1) 50%,transparent 50.6%),linear-gradient(to bottom left,transparent 49.4%,rgba(0,0,0,.1) 50%,transparent 50.6%)}
+.ow-env::after{content:"";position:absolute;left:0;right:0;top:0;height:55%;background:inherit;clip-path:polygon(0 0,100% 0,50% 100%);filter:brightness(.96);box-shadow:0 2px 0 rgba(0,0,0,.05)}
+.ow-env .seal{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);z-index:2;width:30px;height:30px;border-radius:50%;background:var(--pink-ink);color:#fff;display:grid;place-items:center;font-size:14px;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.ow-env .lab{position:absolute;left:8px;right:8px;bottom:8px;z-index:2;background:rgba(255,253,248,.92);color:#2b3f63;border-radius:8px;padding:5px 8px;font-family:var(--f-hand);font-size:15px;line-height:1.25;text-align:center}
+.ow-env .lab small{display:block;font-family:var(--f-round);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7f98b2}
+.ow-add{align-items:stretch}
+.ow-add textarea{flex:1 1 100%;min-height:80px;resize:vertical}
+.ow-letter{max-width:520px;max-height:calc(100dvh - 32px);grid-template-rows:auto minmax(0,1fr) auto}
+.ow-for{margin:0;font-family:var(--f-round);font-weight:700;color:var(--pink-ink);letter-spacing:.04em}
+.ow-text{overflow:auto;min-height:0;font-family:var(--f-hand);font-size:18px;line-height:32px;white-space:pre-line;padding:4px 6px;
+  background-image:linear-gradient(transparent 31px,var(--line) 32px);background-size:100% 32px}
+
+/* ---- a little corner of peace ---- */
+.peace-page{padding:0;overflow:hidden}
+.peace{position:relative;min-height:340px;display:grid;justify-items:center;align-content:center;gap:12px;padding:44px 20px 36px;text-align:center;
+  background:radial-gradient(ellipse at 50% 120%,#3b5a8f 0%,transparent 60%),linear-gradient(180deg,#1b2a4a,#253b66);color:#eef2f8;overflow:hidden}
+.peace h2{color:#f6e7b5!important;font-family:var(--f-hand)!important;font-weight:400!important;position:relative}
+.stars{position:absolute;inset:0;pointer-events:none}
+.stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.7;animation:twinkle var(--d,3s) ease-in-out infinite;animation-delay:var(--dl,0s)}
+@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:.95}}
+.moon{position:absolute;top:22px;right:26px;width:46px;height:46px;border-radius:50%;box-shadow:-10px 6px 0 0 #f6e7b5;transform:rotate(-20deg)}
+.sleepy{position:relative;font-size:56px;line-height:1;animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.z{position:absolute;font-family:var(--f-hand);color:#cfe0ff;opacity:0;animation:zz 4.5s ease-in infinite}
+.z1{left:52px;top:-4px;font-size:16px}.z2{left:64px;top:-18px;font-size:20px;animation-delay:1.5s}.z3{left:78px;top:-34px;font-size:26px;animation-delay:3s}
+@keyframes zz{0%{opacity:0;transform:translate(0,6px)}30%{opacity:.9}100%{opacity:0;transform:translate(10px,-18px)}}
+.peace-line{position:relative;margin:0;font-family:var(--f-hand);font-size:clamp(18px,3.4vw,22px);max-width:30ch;min-height:2.6em;transition:opacity .8s}
+.peace-line.fade{opacity:0}
+.peace-btn{position:relative;background:rgba(255,255,255,.12)!important;color:#eef2f8!important;border-color:#cfe0ff!important;box-shadow:none!important}
+.peace-btn[aria-pressed="true"]{background:#f6e7b5!important;color:#2b3f63!important;border-color:#f6e7b5!important}
+.peace-page .tweak{padding:12px 20px 16px}
+@media (prefers-reduced-motion:reduce){.stars i,.z,.sleepy{animation:none}}
+
 /* ---- edit / add controls ---- */
 .ctl{display:inline-flex;gap:2px;margin-left:6px;vertical-align:middle;white-space:nowrap}
 .ctl button{border:1px solid color-mix(in srgb,currentColor 35%,transparent);background:transparent;color:inherit;opacity:.8;font-family:var(--f-round);font-weight:700;font-size:11px;line-height:1;padding:3px 8px;border-radius:999px;cursor:pointer}
@@ -475,7 +514,7 @@ footer{text-align:center;color:var(--ink-soft);font-family:var(--f-hand)}
     <ol class="gate-hints" id="gateHints"></ol>
   </form>
 </div>
-<script>try{if(localStorage.getItem("nb_unlocked")==="1")document.getElementById("gate").hidden=true;else document.documentElement.classList.add("locked")}catch(e){document.documentElement.classList.add("locked")}</script>
+<script>try{if(sessionStorage.getItem("nb_unlocked")==="1")document.getElementById("gate").hidden=true;else document.documentElement.classList.add("locked")}catch(e){document.documentElement.classList.add("locked")}</script>
 
 <div class="wrap">
 
@@ -505,7 +544,9 @@ footer{text-align:center;color:var(--ink-soft);font-family:var(--f-hand)}
     <a href="#game" data-i18n="tGame"></a>
     <a href="#fixes" data-i18n="tFixes"></a>
     <a href="#letter" data-i18n="tLetter"></a>
+    <a href="#openwhen" data-i18n="tOw"></a>
     <a href="#reasons" data-i18n="tReasons"></a>
+    <a href="#peace" data-i18n="tPeace"></a>
     <a href="#types" data-i18n="tTypes"></a>
   </nav>
 
@@ -694,6 +735,19 @@ footer{text-align:center;color:var(--ink-soft);font-family:var(--f-hand)}
     </div>
   </section>
 
+  <!-- open when... -->
+  <section class="page" id="openwhen">
+    <span class="tape pink"></span><span class="sticker">💌</span>
+    <h2 data-i18n="owH"></h2>
+    <p class="sub" data-i18n="owSub"></p>
+    <div class="ow-grid" id="owList"></div>
+    <form class="addline ow-add" data-add="openwhen">
+      <input class="field" name="a" maxlength="80" required data-i18n-ph="owLabelPh">
+      <textarea class="field" name="b" maxlength="2000" rows="3" required data-i18n-ph="owTextPh"></textarea>
+      <button class="btn" data-i18n="add"></button>
+    </form>
+  </section>
+
   <!-- reasons -->
   <section class="page" id="reasons">
     <span class="tape"></span><span class="sticker">🎵</span>
@@ -701,6 +755,22 @@ footer{text-align:center;color:var(--ink-soft);font-family:var(--f-hand)}
     <p class="sub" data-i18n="reasonsSub"></p>
     <div class="reasons" id="reasonList"></div>
     <form class="addline" data-add="memory"><input class="field" name="a" maxlength="300" required data-i18n-ph="addMemoryPh"><select class="field" name="who" style="width:auto"><option value="me" data-i18n="whoMe"></option><option value="them" data-i18n="whoThem"></option></select><button class="btn" data-i18n="add"></button></form>
+  </section>
+
+  <!-- a little corner of peace -->
+  <section class="page peace-page" id="peace">
+    <div class="peace">
+      <div class="stars" id="stars" aria-hidden="true"></div>
+      <div class="moon" aria-hidden="true"></div>
+      <div class="sleepy" aria-hidden="true"><span class="bun">🐰</span><span class="z z1">z</span><span class="z z2">z</span><span class="z z3">Z</span></div>
+      <h2 data-i18n="peaceH"></h2>
+      <p class="peace-line" id="peaceLine" aria-live="polite"></p>
+      <button class="btn peace-btn" id="peaceMusic" type="button" aria-pressed="false" data-i18n="peacePlay"></button>
+    </div>
+    <details class="tweak"><summary data-i18n="peaceEdit"></summary>
+      <ul class="minilist" id="goodnightList"></ul>
+      <form class="addline" data-add="goodnight"><input class="field" name="a" maxlength="200" required data-i18n-ph="peaceAddPh"><button class="btn" data-i18n="add"></button></form>
+    </details>
   </section>
 
   <!-- ENFP x INTJ -->
@@ -750,6 +820,13 @@ footer{text-align:center;color:var(--ink-soft);font-family:var(--f-hand)}
   <footer><div class="sync" id="syncNote"></div></footer>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div class="modal" id="owModal" hidden>
+  <div class="modal-card ow-letter">
+    <p class="ow-for" id="owFor"></p>
+    <div class="ow-text" id="owText"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn pink" type="button" id="owClose" data-i18n="owClose"></button></div>
+  </div>
+</div>
 <div class="modal" id="yesModal" hidden>
   <div class="modal-card yes-card">
     <img class="yes-pic" src="images/cats-yes.jpg" alt="" width="480" height="480" onerror="this.src='images/cat-rose.jpg'">
@@ -833,6 +910,19 @@ const CONFIG = {
       {vi:"Người ta bảo ENFP và INTJ nói chuyện rất hợp.", en:"People say ENFP and INTJ make good conversation partners.", zh:"大家说 ENFP 和 INTJ 聊天很合得来。"},
     ],
   },
+  openWhen: [
+    {label:"you're tired", text:"Hey. You've been carrying a lot lately.\nPut the books down for ten minutes, drink some water and stretch. The work will still be there, and you'll be better at it after a break.\nI'm proud of how hard you try."},
+    {label:"you just finished an exam", text:"It's done!\nWhatever the result, you showed up and gave it your best. Go eat something good and do nothing for a while. You earned it ✿"},
+    {label:"you can't sleep", text:"Close your eyes. Breathe in for four, hold for four, out for six.\nThink of somewhere quiet and warm. Your mind can rest now; tomorrow can wait until tomorrow.\nGoodnight 🌙"},
+    {label:"you're having a bad day", text:"Bad days don't last, even when they feel long.\nYou don't have to fix everything today. Be gentle with yourself.\nAnd if you want to talk, I'm here."},
+  ],
+  goodnight: [
+    "Goodnight. Sleep well and dream of something soft 🌙",
+    "Today is done. You did enough ✿",
+    "Rest now. Tomorrow will be kinder.",
+    "The stars are out, and the bunny is already asleep 🐰",
+    "Breathe slow. Everything can wait until morning.",
+  ],
   songs: [],  // bài hát thêm bằng form trên trang (lưu trong Supabase)
   updates: [   // việc gần đây viết sẵn (date: YYYY-MM-DD); hai đứa thêm tiếp bằng form trên trang
     {date:"2026-11-01", who:"me", tag:"Identity V", text:{vi:"Đang luyện Identity V mỗi ngày, vẫn gà nhưng đỡ hơn rồi.", en:"Practising Identity V every day. Still bad, but getting better.", zh:"每天都在练第五人格，还是很菜，但进步了一点。"}},
@@ -854,15 +944,15 @@ const T = {
     fixesH:"Những điều tớ sai và sẽ sửa",fixesSub:"Tớ viết ra để không quên.",letterH:"Điều tớ muốn nói",letterSub:"Mở khi cậu sẵn sàng.",openEnv:"Mở thư",
     reasonsH:"Những điều tớ còn nhớ",reasonsSub:"Bật nhạc ở góc trên rồi cuộn xuống, mỗi dòng là một nốt nhạc.",songsH:"Playlist nho nhỏ ♪",tracksH:"Các bài",songsSub:"Bấm một bài để nghe.",noSongs:"Chưa có bài nào. Thêm bài đầu tiên ở dưới nha.",
     listen:"Nghe",film:"Bài hát",footer:"tự tay làm · 手作 · handmade"},
-  en:{placeChangePhoto:"📷 Change photo",placeRemovePhoto:"Remove photo",gateQ:"Where did Maia and Sihao first meet?",gateSub:"Answer right to open the notebook 🔐",gatePh:"Type your answer…",gateGo:"Unlock",gateHintBtn:"Need a hint? 💡",gateWrong:"Not quite… try again 🥺",gateRight:"Yes! Opening the notebook 💗",gateNoMore:"No more hints 🙈",gateHints:"It's a building on campus 🏫|Two words, the second one is “Hall”|The first word has 7 letters and starts with “H”",yesTitle:"💗 Sihao said YES!",yesClose:"Yayyy 💗",yesWhen:"at",askQ:"Will you let me like you? 🌹",askSub:"No rush, I just wanted you to know 🥺",askYes:"Yes 💗",askNo:"No",askDone:"Yayyy! 💗 Thank you",saidYes:"said yes ♡",diaryEmpty:"No notes yet. Write the first one above.",biuTap:"Tap to shoot a heart",biuHint:"tap to biu again",tPlaces:"Places",placesH:"Places we've been",placesSub:"Each city gets a pin. Add a photo if you have one.",mapHint:"Type a city and tap Add. If it can't be found, tap the map to drop the pin yourself.",placeCityPh:"City (e.g. Kyoto)",placeDatePh:"When (e.g. 08/2025)",placeNotePh:"A little note",placePhoto:"📷 Add photo",photoPicked:"📷 Photo picked",addPlace:"Pin it",placeNotFound:"Couldn't find that city. Tap the map to drop a pin, then tap Add again.",pinPlaced:"Pin dropped. Add a name, then tap Add.",placeAdded:"Pinned on the map ✿",homeMe:"Maia's hometown",homeThem:"Sihao's hometown",fCity:"City",fDate:"When",fNote:"Note",searching:"Searching…",editH:"Edit",cancel:"Cancel",save:"Save",confirmDel:"Delete this?",add:"Add",editCheers:"Edit cheers",addCheerPh:"Add a cheer",addFixWasPh:"What I got wrong",addFixNowPh:"From now on I'll…",addMemoryPh:"Add a memory",addFitPh:"Add a way we get along",addTraitPh:"Add a trait",fText:"Text",fTitle:"Title",fArtist:"Artist",fWhy:"Why this song",fLink:"Spotify / YouTube link",fTag:"Tag",fCap:"Caption",fWas:"What went wrong",fNow:"What I'll do instead",fId:"Game ID",fName:"Account",emptyErr:"This can't be empty.",listenAs:"I'm:",isPlaying:"is playing",joinListen:"Listen together",isHere:"is here too",soundOff:"♪ sound on",soundOn:"♪ playing",heroTitle:"For Sihao, <em>a little notebook</em>",heroSub:"Games, songs and a few notes. Drop by whenever you like.",
-    loveBtn:"Say hi ✿",tStudy:"Study break",tDiary:"Diary",tUpdates:"Lately",tPhotos:"Photos",updatesH:"What we've been up to",updatesSub:"Each of us writes a few lines about life lately, so the other one knows how it's going.",updatePh:"What have you been up to?",updateTagPh:"Tag (e.g. study, game)",addUpdate:"Add",photosH:"Photos",photosSub:"Stick photos in like polaroids. Add a caption if you like.",addPhoto:"Add photos",captionPh:"Caption (optional)",photoHint:"a photo goes here",photoFull:"Storage is full. Delete an older photo and try again.",photoErr:"Couldn't read that image. Try another one.",addSongH:"Add a song",songTitlePh:"Song title",songArtistPh:"Artist",songWhyPh:"Why this song? Take your time, there's room for the whole story ✿",addSong:"Add to playlist",songAdded:"Added to the playlist ♪",songLinkPh:"Spotify / YouTube link (optional)",syncErr:"Couldn't save. Check your connection and try again.",syncOn:"synced: Maia and Sihao see the same notebook",syncOff:"",tGame:"Identity V",tFixes:"What I'll fix",tLetter:"Letter",tReasons:"Memories",tTypes:"Quick facts",typesH:"Quick facts",fZodiac:"Zodiac",fUni:"University",fHeight:"Height",fMajor:"Major",fFrom:"From",typesSub:"Almost opposite types, sharing only the N.",tSongs:"Playlist",
+  en:{tOw:"Open when…",owH:"Open when…",owSub:"Little letters for the days that need one. Tap an envelope to open it.",owLabelPh:"Open when… (e.g. you miss home)",owTextPh:"Write the letter",owClose:"Close ✿",owLabel:"Open when…",owBody:"Letter",tPeace:"Peace",peaceH:"a little corner of peace",peacePlay:"♪ play soft music",peaceStop:"❚❚ pause music",peaceEdit:"Edit goodnight wishes",peaceAddPh:"Add a goodnight wish",placeChangePhoto:"📷 Change photo",placeRemovePhoto:"Remove photo",gateQ:"Where did Maia and Sihao first meet?",gateSub:"Answer right to open the notebook 🔐",gatePh:"Type your answer…",gateGo:"Unlock",gateHintBtn:"Need a hint? 💡",gateWrong:"Not quite… try again 🥺",gateRight:"Yes! Opening the notebook 💗",gateNoMore:"No more hints 🙈",gateHints:"It's a building on campus 🏫|Two words, the second one is “Hall”|The first word has 7 letters and starts with “H”",yesTitle:"💗 Sihao said YES!",yesClose:"Yayyy 💗",yesWhen:"at",askQ:"Will you let me like you? 🌹",askSub:"No rush, I just wanted you to know 🥺",askYes:"Yes 💗",askNo:"No",askDone:"Yayyy! 💗 Thank you",saidYes:"said yes ♡",diaryEmpty:"No notes yet. Write the first one above.",biuTap:"Tap to shoot a heart",biuHint:"tap to biu again",tPlaces:"Places",placesH:"Places we've been",placesSub:"Each city gets a pin. Add a photo if you have one.",mapHint:"Type a city and tap Add. If it can't be found, tap the map to drop the pin yourself.",placeCityPh:"City (e.g. Kyoto)",placeDatePh:"When (e.g. 08/2025)",placeNotePh:"A little note",placePhoto:"📷 Add photo",photoPicked:"📷 Photo picked",addPlace:"Pin it",placeNotFound:"Couldn't find that city. Tap the map to drop a pin, then tap Add again.",pinPlaced:"Pin dropped. Add a name, then tap Add.",placeAdded:"Pinned on the map ✿",homeMe:"Maia's hometown",homeThem:"Sihao's hometown",fCity:"City",fDate:"When",fNote:"Note",searching:"Searching…",editH:"Edit",cancel:"Cancel",save:"Save",confirmDel:"Delete this?",add:"Add",editCheers:"Edit cheers",addCheerPh:"Add a cheer",addFixWasPh:"What I got wrong",addFixNowPh:"From now on I'll…",addMemoryPh:"Add a little thing you remember",addFitPh:"Add a way we get along",addTraitPh:"Add a trait",fText:"Text",fTitle:"Title",fArtist:"Artist",fWhy:"Why this song",fLink:"Spotify / YouTube link",fTag:"Tag",fCap:"Caption",fWas:"What went wrong",fNow:"What I'll do instead",fId:"Game ID",fName:"Account",emptyErr:"This can't be empty.",listenAs:"I'm:",isPlaying:"is playing",joinListen:"Listen together",isHere:"is here too",soundOff:"♪ sound on",soundOn:"♪ playing",heroTitle:"For Sihao, <em>a little notebook</em>",heroSub:"Games, songs and a few notes. Drop by whenever you like.",
+    loveBtn:"Say hi ✿",tStudy:"Study break",tDiary:"Diary",tUpdates:"Lately",tPhotos:"Photos",updatesH:"What we've been up to",updatesSub:"Each of us writes a few lines about life lately, so the other one knows how it's going.",updatePh:"What have you been up to?",updateTagPh:"Tag (e.g. study, game)",addUpdate:"Add",photosH:"Photos",photosSub:"Stick photos in like polaroids. Add a caption if you like.",addPhoto:"Add photos",captionPh:"Caption (optional)",photoHint:"a photo goes here",photoFull:"Storage is full. Delete an older photo and try again.",photoErr:"Couldn't read that image. Try another one.",addSongH:"Add a song",songTitlePh:"Song title",songArtistPh:"Artist",songWhyPh:"Why this song? Take your time, there's room for the whole story ✿",addSong:"Add to playlist",songAdded:"Added to the playlist ♪",songLinkPh:"Spotify / YouTube link (optional)",syncErr:"Couldn't save. Check your connection and try again.",syncOn:"synced: Maia and Sihao see the same notebook",syncOff:"",tGame:"Identity V",tFixes:"What I'll fix",tLetter:"Letter",tReasons:"Little things",tTypes:"Quick facts",typesH:"Quick facts",fZodiac:"Zodiac",fUni:"University",fHeight:"Height",fMajor:"Major",fFrom:"From",typesSub:"Almost opposite types, sharing only the N.",tSongs:"Playlist",
     studyH:"Tired of studying?",studySub:"Come here when you need a little cheer or five minutes off.",hugH:"A little cheer",hugBtn:"Cheer me on",breakH:"5-minute break",start:"Start",pause:"Pause",reset:"Reset",
     patH:"Pat the bunny",pats:n=>`Patted ${n} times. Bunny is happy.`,breakDone:"Break's over. You've got this!",
     diaryH:"Shared diary",diarySub:"A few lines about today. One paper colour each.",diaryPh:"How was your day?",who:"Written by:",whoMe:"Maia",whoThem:"Sihao",stick:"Stick it in",del:"delete",example:"example",
     gameH:"Play Identity V with me?",gameSub:"One tap and the invite is sent.",myId:"My ID:",invite:"Send a play invite",
     chicken:"A little heads-up: I only just started learning, so I'm still pretty bad, but I'm practising every day. Please carry me 🐔",inviteSent:"Invite sent! My ID is copied, paste it in the game to find me. I'm bad at this, don't laugh 🐔",
     fixesH:"What I got wrong, and what I'll fix",fixesSub:"Written down so I don't forget.",letterH:"What I want to say",letterSub:"Open it when you're ready.",openEnv:"Open letter",
-    reasonsH:"Things I still remember",reasonsSub:"Turn the sound on up top, then scroll. Each line plays a note.",songsH:"Little playlist ♪",tracksH:"Tracks",songsSub:"Tap a song to play it.",noSongs:"No songs yet. Add the first one below.",
+    reasonsH:"little things I remember",reasonsSub:"Small details I still remember about you, from favourite things to things you said without thinking. Turn the sound on, then scroll.",songsH:"Little playlist ♪",tracksH:"Tracks",songsSub:"Tap a song to play it.",noSongs:"No songs yet. Add the first one below.",
     listen:"Listen",film:"Song",footer:"handmade · 手作 · tự tay làm"},
   zh:{gateQ:"Maia 和 Sihao 第一次见面是在哪里？",gateSub:"答对了才能打开小本子 🔐",gatePh:"输入答案…",gateGo:"解锁",gateHintBtn:"要提示吗？💡",gateWrong:"不对哦……再试试 🥺",gateRight:"答对啦！打开小本子 💗",gateNoMore:"没有更多提示啦 🙈",gateHints:"是学校里的一栋楼 🏫|两个英文单词，第二个是 “Hall”|第一个单词有 7 个字母，以 “H” 开头",yesTitle:"💗 Sihao 答应啦！",yesClose:"耶 💗",yesWhen:"时间",askQ:"可以让我喜欢你吗？🌹",askSub:"不着急，我只是想让你知道 🥺",askYes:"好呀 💗",askNo:"不要",askDone:"耶！💗 谢谢你",saidYes:"点了「好呀」♡",diaryEmpty:"还没有内容，在上面写第一条吧。",biuTap:"点这里发射爱心",biuHint:"点一下再 biu 一次",tPlaces:"去过的地方",placesH:"去过的地方",placesSub:"每个城市一个图钉，有照片就加上吧。",mapHint:"输入城市名再点添加。找不到的话，点一下地图自己放图钉。",placeCityPh:"城市（如：杭州）",placeDatePh:"时间（如：2025年8月）",placeNotePh:"写一句小记",placePhoto:"📷 加照片",photoPicked:"📷 已选照片",addPlace:"钉在地图上",placeNotFound:"没找到这个城市。点一下地图放图钉，再点添加。",pinPlaced:"图钉放好了，写上名字再点添加。",placeAdded:"已钉在地图上 ✿",homeMe:"Maia 的家乡",homeThem:"Sihao 的家乡",fCity:"城市",fDate:"时间",fNote:"小记",searching:"搜索中…",editH:"编辑",cancel:"取消",save:"保存",confirmDel:"要删除这条吗？",add:"添加",editCheers:"编辑打气的话",addCheerPh:"加一句打气的话",addFixWasPh:"我做错的事",addFixNowPh:"以后我会……",addMemoryPh:"加一个回忆",addFitPh:"加一条合得来的地方",addTraitPh:"加一个性格特点",fText:"内容",fTitle:"歌名",fArtist:"歌手",fWhy:"为什么是这首",fLink:"Spotify / YouTube 链接",fTag:"标签",fCap:"说明",fWas:"做错的事",fNow:"以后会怎么做",fId:"游戏 ID",fName:"账号",emptyErr:"不能留空哦。",listenAs:"我是：",isPlaying:"正在听",joinListen:"一起听",isHere:"也在这里",soundOff:"♪ 打开音乐",soundOn:"♪ 播放中",heroTitle:"给 Sihao 的<em>小本子</em>",heroSub:"有游戏、有歌，还有几句话。有空就来看看吧。",
     loveBtn:"打个招呼 ✿",tStudy:"学累了",tDiary:"共同日记",tUpdates:"最近",tPhotos:"照片",updatesH:"我们最近在做什么",updatesSub:"两个人都写几句最近的生活，让对方知道自己过得怎么样。",updatePh:"你最近在做什么？",updateTagPh:"标签（如：学习、游戏）",addUpdate:"添加",photosH:"照片",photosSub:"像拍立得一样贴上照片，想写就加一句话。",addPhoto:"添加照片",captionPh:"写一句话（可不填）",photoHint:"照片放在这里",photoFull:"存储空间满了，删掉一张旧照片再试试。",photoErr:"这张图读不出来，换一张试试。",addSongH:"添加歌曲",songTitlePh:"歌名",songArtistPh:"歌手",songWhyPh:"为什么是这首？",addSong:"加入歌单",songAdded:"已加入歌单 ♪",songLinkPh:"Spotify / YouTube 链接（可不填）",syncErr:"没保存成功，检查一下网络再试试。",syncOn:"已同步：Maia 和 Sihao 看到的是同一本",syncOff:"",tGame:"第五人格",tFixes:"我会改",tLetter:"信",tReasons:"回忆",tTypes:"档案",typesH:"小档案",fZodiac:"星座",fUni:"大学",fHeight:"身高",fMajor:"专业",fFrom:"来自",typesSub:"几乎相反的两种人格，只共享一个 N。",tSongs:"歌单",
@@ -1185,12 +1275,12 @@ function sec(name,fallback){const own=items[name]||[];if(SB&&itemsReady)return o
 const ctlEdit=(tb,id)=>id?`<span class="ctl"><button type="button" data-edit="${tb}|${esc(id)}">✎ ${t("editH")}</button></span>`:"";
 const ctl=(tb,id)=>id?`<span class="ctl"><button type="button" data-edit="${tb}|${esc(id)}">✎ ${t("editH")}</button><button type="button" data-remove="${tb}|${esc(id)}">× ${t("del")}</button></span>`:"";
 const foldCheers=()=>{const d=$("#cheerList").closest("details");if(d)d.open=false};
-function renderItemsAll(){renderAsk();renderFixes();renderReasons();renderTypes();renderCheerList();showCheer();renderGame();renderLetter()}
+function renderItemsAll(){renderOpenWhen();renderGoodnight();renderAsk();renderFixes();renderReasons();renderTypes();renderCheerList();showCheer();renderGame();renderLetter()}
 async function loadItems(){const d=await Data.list("items");if(!d)return;items={};d.slice().reverse().forEach(r=>(items[r.section]=items[r.section]||[]).push(r));itemsReady=true;renderItemsAll()}
 const RELOAD={places:()=>loadPlaces(),diary:()=>loadDiary(),songs:()=>loadSongs(),updates:()=>loadUpdates(),photos:()=>loadPhotos(),items:()=>loadItems()};
 const FIELDS={diary:[["text","fText",1]],songs:[["title","fTitle"],["artist","fArtist"],["why","fWhy",1],["link","fLink"]],
   updates:[["text","fText",1],["tag","fTag"]],photos:[["cap","fCap"]],places:[["name","fCity"],["visited","fDate"],["note","fNote",1]],
-  items:r=>({fix:[["a","fWas",1],["b","fNow",1]],letter:[["a","fText",1]],gameid:[["a","fId"],["b","fName"]]}[r.section]||[["a","fText",1]])};
+  items:r=>({openwhen:[["a","owLabel"],["b","owBody",1]],fix:[["a","fWas",1],["b","fNow",1]],letter:[["a","fText",1]],gameid:[["a","fId"],["b","fName"]]}[r.section]||[["a","fText",1]])};
 const REQUIRED=new Set(["text","title","a","name"]);
 function findRow(tb,id){
   if(id.startsWith("new-")){const sc=id.slice(4);return {section:sc,a:sc==="gameid"?CONFIG.gameId:JSON.stringify(CONFIG.letter),b:sc==="gameid"?CONFIG.gameName:null,virtual:true}}
@@ -1203,7 +1293,7 @@ function openEdit(tb,id){
   const f=typeof FIELDS[tb]==="function"?FIELDS[tb](r):FIELDS[tb];
   editing={tb,id,r,f};
   $("#editFields").innerHTML=f.map(([k,lab,multi],i)=>`<label for="ef${i}">${t(lab)}${multi
-    ?`<textarea class="field${k==="why"?" tall":""}" id="ef${i}" maxlength="${k==="why"?5000:k==="text"?(tb==="updates"?300:2000):(k==="a"&&r.section==="letter")?3000:400}">${esc(L(r[k]))}</textarea>`
+    ?`<textarea class="field${k==="why"?" tall":""}" id="ef${i}" maxlength="${k==="why"?5000:k==="text"?(tb==="updates"?300:2000):(k==="a"&&r.section==="letter")?3000:(k==="b"&&r.section==="openwhen")?2000:400}">${esc(L(r[k]))}</textarea>`
     :`<input class="field" id="ef${i}" maxlength="300" value="${esc(L(r[k]))}">`}</label>`).join("")
     +(tb==="places"?`<div class="ef-photo">
         <img id="efPic" alt="" ${r.src?`src="${esc(r.src)}"`:"hidden"}>
@@ -1516,12 +1606,60 @@ $("#gateForm").onsubmit=async e=>{
   let ok=false;try{ok=GATE_OK.includes(await gateHash(v))}catch{ok=false}
   if(!ok){const c=$("#gateForm");c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake");$("#gateMsg").textContent=t("gateWrong");note(0);return}
   $("#gateMsg").textContent=t("gateRight");
-  try{localStorage.setItem("nb_unlocked","1")}catch{}
+  try{sessionStorage.setItem("nb_unlocked","1")}catch{}
   [0,2,4,7].forEach((n,i)=>setTimeout(()=>note(n),i*140));
   tell("🔓 Sihao vừa mở khoá cuốn sổ","","unlock",3600000);
   const g=$("#gate");g.classList.add("opening");setTimeout(()=>{g.hidden=true;document.documentElement.classList.remove("locked");if(map)map.invalidateSize()},600);
 };
 if(!$("#gate").hidden)setTimeout(()=>$("#gateIn").focus(),300);
+
+/* ---------- open when... ---------- */
+const OW_COLORS=["#f3c6d2","#cfe3f3","#f4e6b5","#d9ead3","#e6dcf3"];
+const owList=()=>sec("openwhen",(CONFIG.openWhen||[]).map(x=>({a:x.label,b:x.text})));
+function renderOpenWhen(){
+  $("#owList").innerHTML=owList().map((o,i)=>`<div class="ow-card">
+    <button type="button" class="ow-env" data-ow="${i}" style="--env:${OW_COLORS[i%OW_COLORS.length]};--r:${[-2,1.5,-1,2,-1.5][i%5]}deg">
+      <span class="seal">♡</span><span class="lab"><small>open when</small>${esc(L(o.a).replace(/^open when\s*/i,""))}</span></button>
+    ${ctl("items",o.id)}</div>`).join("");
+}
+$("#owList").addEventListener("click",e=>{
+  const b=e.target.closest("[data-ow]");if(!b)return;const o=owList()[+b.dataset.ow];if(!o)return;
+  const label=L(o.a).replace(/^open when\s*/i,"");
+  $("#owFor").textContent="Open when "+label;$("#owText").textContent=L(o.b);$("#owModal").hidden=false;$("#owText").scrollTop=0;
+  [0,2,4].forEach((n,k)=>setTimeout(()=>note(n,.12),k*160));
+  tell(`💌 Sihao vừa mở thư "Open when ${label}"`,"#openwhen","ow:"+label,3600000);
+});
+$("#owClose").onclick=()=>{$("#owModal").hidden=true};
+$("#owModal").addEventListener("click",e=>{if(e.target.id==="owModal")$("#owModal").hidden=true});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#owModal").hidden=true});
+
+/* ---------- a little corner of peace ---------- */
+(function(){const st=$("#stars");let h="";for(let i=0;i<46;i++)h+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${(2+Math.random()*3).toFixed(1)}s;--dl:${(Math.random()*3).toFixed(1)}s;transform:scale(${(.6+Math.random()*1.2).toFixed(2)})"></i>`;st.innerHTML=h})();
+const goodnights=()=>sec("goodnight",(CONFIG.goodnight||[]).map(a=>({a})));
+let gnI=0;
+function showGoodnight(){const l=goodnights();if(!l.length){$("#peaceLine").textContent="";return}$("#peaceLine").textContent=L(l[gnI%l.length].a)}
+function renderGoodnight(){showGoodnight();$("#goodnightList").innerHTML=goodnights().map(g=>`<li>${esc(L(g.a))}${ctl("items",g.id)}</li>`).join("")}
+setInterval(()=>{const el=$("#peaceLine");el.classList.add("fade");setTimeout(()=>{gnI++;showGoodnight();el.classList.remove("fade")},800)},7000);
+// soft ambient piano: slow, quiet notes with long tails
+let peaceTimer=null;
+const PEACE=[196,220,261.63,293.66,329.63,392,440,523.25];
+function softNote(f,vol=.07){
+  const now=ctx.currentTime,o=ctx.createOscillator(),o2=ctx.createOscillator(),g=ctx.createGain(),lp=ctx.createBiquadFilter();
+  o.type="sine";o2.type="sine";o.frequency.value=f;o2.frequency.value=f*2.002;lp.type="lowpass";lp.frequency.value=1400;
+  g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(vol,now+.04);g.gain.exponentialRampToValueAtTime(.0001,now+4.5);
+  const g2=ctx.createGain();g2.gain.value=.25;o.connect(g);o2.connect(g2).connect(g);g.connect(lp).connect(ctx.destination);
+  o.start(now);o2.start(now);o.stop(now+4.6);o2.stop(now+4.6);
+}
+$("#peaceMusic").onclick=()=>{
+  const b=$("#peaceMusic");
+  if(peaceTimer){clearTimeout(peaceTimer);peaceTimer=null;b.setAttribute("aria-pressed","false");b.textContent=t("peacePlay");return}
+  if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch{return}}
+  if(ctx.state==="suspended")ctx.resume();
+  b.setAttribute("aria-pressed","true");b.textContent=t("peaceStop");
+  tell("🌙 Sihao đang ở góc yên bình","#peace","peace",3600000);
+  const step=()=>{const f=PEACE[Math.floor(Math.random()*PEACE.length)];softNote(f);if(Math.random()<.35)setTimeout(()=>softNote(f*1.5,.04),300);peaceTimer=setTimeout(step,1600+Math.random()*1800)};
+  step();
+};
 
 /* ---------- language ---------- */
 function setLang(l){
@@ -1532,7 +1670,7 @@ function setLang(l){
   document.querySelectorAll(".langs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===l));
   $("#sound").textContent=t(soundOn?"soundOn":"soundOff");
   timerLabel();patLabel();showCheer();renderCheerList();renderGame();renderDiary();renderFixes();renderReasons();renderSongs();renderUpdates();renderPhotos();renderTypes();
-  renderLetter();renderPresence();renderPlaces();segs();renderAsk();renderGate();
+  renderLetter();renderPresence();renderPlaces();segs();renderAsk();renderGate();renderOpenWhen();renderGoodnight();
 }
 document.querySelectorAll(".langs button").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
 if(!T[lang])lang="en";
